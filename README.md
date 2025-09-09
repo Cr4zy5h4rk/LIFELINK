@@ -3,45 +3,45 @@
 ---
 
 ```markdown
-# 🩺 LifeLink - Plateforme de gestion des dons de sang avec l'id numerique + Chatbot pour le Don de Sang
+# 🩺 LifeLink - Blood Donation Management Platform with Digital ID + Blood Donation Chatbot
 
-LifeLink est une solution complète de gestion médicale 3-tiers combinant :
-- Un backend Spring Boot
-- Un frontend Angular
-- Une application Flutter
-- Un chatbot intelligent (Amina) pour informer les utilisateurs sur le don de sang
+LifeLink is a comprehensive 3-tier medical management solution combining:
+- A Spring Boot backend
+- An Angular frontend
+- A Flutter application
+- An intelligent chatbot (Amina) to inform users about blood donation
 
 ---
 
-## 🔧 Préparation de l’environnement
+## 🔧 Environment Setup
 
-### 1. Lancer les services eSignet
+### 1. Launch eSignet services
 
-Se rendre dans le dossier `esignet/docker-compose` :
+Navigate to the `esignet/docker-compose` folder:
 ```bash
 docker compose --file docker-compose.yml up
 ```
 
-### 2. Génération des clés et utilisateurs eSignet
+### 2. Generate eSignet keys and users
 
-Dabord installer les requirements: 
+First install the requirements:
 ```bash
 pip install -r requirements.txt
 ```
 
-Depuis le dossier principal :
+From the main folder:
 
 ```bash
 python esignet_keygen.py
-# ou
+# or
 python -m esignet_keygen.py
 
 python esignet_usergen.py
-# ou
+# or
 python -m esignet_usergen.py
 ```
 
-Ces scripts créent les utilisateurs suivants :
+These scripts create the following users:
 
 ```json
 {
@@ -70,18 +70,18 @@ Ces scripts créent les utilisateurs suivants :
 }
 ```
 
-Pour vous connecter via eSignet, utilisez les UIN respectifs :
+To log in via eSignet, use the respective UINs:
 
 ```
 8267411576 - 8267411577 - 8267411578
-OTP : 111111
+OTP: 111111
 ```
 
 ---
 
-## 🐘 Base de données PostgreSQL
+## 🐘 PostgreSQL Database
 
-Démarrer le conteneur PostgreSQL avec persistance :
+Start the PostgreSQL container with persistence:
 
 ```bash
 docker run --name some-postgres \
@@ -96,25 +96,25 @@ docker run --name some-postgres \
 
 ## ☕ Backend - Spring Boot
 
-### 📦 Installation de Java JDK 21
+### 📦 Java JDK 21 Installation
 
-#### Sous **Windows**
-Télécharger l'installateur depuis :  
+#### On **Windows**
+Download the installer from:  
 🔗 https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html
 
-#### Sous **Linux**
+#### On **Linux**
 ```bash
 sudo apt update
 sudo apt install openjdk-21-jdk
 ```
 
-### ▶️ Lancer le backend
+### ▶️ Launch the backend
 
-#### Avec IntelliJ
-- Ouvrir le projet `Lifelink_Backend`
-- Maven téléchargera automatiquement les dépendances
+#### With IntelliJ
+- Open the `Lifelink_Backend` project
+- Maven will automatically download dependencies
 
-#### En ligne de commande :
+#### Command line:
 ```bash
 cd Lifelink_Backend
 mvn spring-boot:run
@@ -124,28 +124,28 @@ mvn spring-boot:run
 
 ## 🌐 Frontend - Angular
 
-### 📦 Installation de Node.js et Angular CLI
+### 📦 Node.js and Angular CLI Installation
 
-#### Sous **Windows**
-Télécharger Node.js depuis :  
+#### On **Windows**
+Download Node.js from:  
 🔗 https://nodejs.org/
 
-Installez tailwind :  
+Install tailwind:  
 🔗 https://tailwindcss.com/docs/installation/using-vite
 
-Ensuite, installer Angular CLI :
+Then install Angular CLI:
 ```bash
 npm install -g @angular/cli
 ```
 
-#### Sous **Linux**
+#### On **Linux**
 ```bash
 sudo apt update
 sudo apt install nodejs npm
 sudo npm install -g @angular/cli
 ```
 
-### ▶️ Lancer le frontend
+### ▶️ Launch the frontend
 
 ```bash
 cd Lifelink_Admin
@@ -153,132 +153,131 @@ npm i --force
 ng serve
 ```
 
-Accédez à l’interface via :  
+Access the interface via:  
 🔗 [http://localhost:4200](http://localhost:4200)
 
-Cliquez sur "Tableau de bord" pour accéder au login eSignet.
+Click on "Dashboard" to access eSignet login.
 
 ---
 
-## 📱 Application Flutter
+## 📱 Flutter Application
 
-Une application Flutter a été développée pour les utilisateurs mobiles.
+A Flutter application has been developed for mobile users.
 
-### 📦 Version utilisée
+### 📦 Version used
 - Flutter **3.29.0-stable**
 
-### 🛠️ Prérequis
-- **Android Studio** : Pour l’émulateur et le build Android
+### 🛠️ Prerequisites
+- **Android Studio**: For emulator and Android build
 
-👉 Suivre la documentation officielle Flutter :  
+👉 Follow the official Flutter documentation:  
 🔗 [https://docs.flutter.dev/get-started/install](https://docs.flutter.dev/get-started/install)
 
 ---
 
-## 🤖 Amina - Chatbot pour le Don de Sang
+## 🤖 Amina - Blood Donation Chatbot
 
-**Amina** est un **chatbot intelligent** pour répondre aux questions sur le **don de sang**.
+**Amina** is an **intelligent chatbot** to answer questions about **blood donation**.
 
-### ⚙️ Technologies utilisées
+### ⚙️ Technologies used
 
-- 🚀 **FastAPI** : pour l’API REST
-- 🧠 **LangChain** : pour la gestion contextuelle des réponses
-- 🤗 **Hugging Face** : pour accéder au modèle Mistral-7B via API
-- 📚 **FAISS** : pour retrouver rapidement les infos dans la base PDF
+- 🚀 **FastAPI**: for the REST API
+- 🧠 **LangChain**: for contextual response management
+- 🤗 **Hugging Face**: to access the Mistral-7B model via API
+- 📚 **FAISS**: to quickly retrieve information from the PDF database
 
-> Docker était prévu pour le déploiement mais non utilisé ici.
+> Docker was planned for deployment but not used here.
 
-### 🧠 Pourquoi Hugging Face ?
+### 🧠 Why Hugging Face?
 
-Exécuter un modèle comme Mistral-7B en local demande trop de ressources.  
-Nous utilisons donc Hugging Face Hub via API, avec une **liste de tokens** pour gérer la rotation automatique en cas d’expiration.
+Running a model like Mistral-7B locally requires too many resources.  
+We therefore use Hugging Face Hub via API, with a **token list** to manage automatic rotation in case of expiration.
 
 ---
 
-### 🚀 Démarrer le chatbot
+### 🚀 Start the chatbot
 
-#### Cloner le projet
+#### Clone the project
 ```bash
 git clone https://github.com/ton-repo/sangbot.git
 cd sangbot
 ```
 
-#### Créer un environnement virtuel
+#### Create a virtual environment
 ```bash
 python -m venv venv
 source venv/bin/activate         # Linux/Mac
 venv\Scripts\activate            # Windows
 ```
 
-#### Installer les dépendances
+#### Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-#### Configurer les tokens Hugging Face
+#### Configure Hugging Face tokens
 
-Créer un fichier `.env` :
+Create a `.env` file:
 ```env
 HUGGINGFACE_TOKENS=token1,token2,token3
 ```
 
-> Remplacer `token1`, `token2`, etc. par des tokens Hugging Face valides.
+> Replace `token1`, `token2`, etc. with valid Hugging Face tokens.
 
 ---
 
-### ▶️ Lancer l’API
+### ▶️ Launch the API
 ```bash
 uvicorn main:app --reload
 ```
 
-Accessible sur :  
+Accessible at:  
 📍 [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
-#### Exemple d’appel API :
+#### API call example:
 ```bash
 curl -X POST "http://127.0.0.1:8000/chat" \
 -H "Content-Type: application/json" \
--d '{"question": "Puis-je donner du sang si je viens de me faire tatouer ?"}'
+-d '{"question": "Can I donate blood if I just got a tattoo?"}'
 ```
 
 ---
 
 ---
 
-## 🌍 LLM-W - Prototype de Chatbot Wolof
+## 🌍 LLM-W - Wolof Chatbot Prototype
 
-Le dossier `LLM-W` contient une première **expérimentation d’un chatbot en Wolof**, destiné à répondre aux besoins linguistiques locaux.  
-Ce prototype visait à étendre **SangBot** pour qu’il puisse aussi dialoguer en **langue wolof**.
+The `LLM-W` folder contains a first **experiment of a chatbot in Wolof**, designed to meet local linguistic needs.  
+This prototype aimed to extend **SangBot** so it could also dialogue in **Wolof language**.
 
-Cependant, pour des raisons de **contraintes de temps et d’intégration**, ce composant **n’a pas encore été finalisé ni intégré** dans la solution actuelle.
+However, due to **time constraints and integration issues**, this component **has not yet been finalized or integrated** into the current solution.
 
-> 🧪 Le code reste disponible pour toute évolution ou contribution future autour du multilinguisme.
-
----
-
-🚧 Tentative de conteneurisation
-Nous avons entrepris de conteneuriser l'ensemble du projet afin de faciliter le déploiement et la portabilité. Bien que la majorité des composants aient été correctement isolés dans des conteneurs Docker, nous avons rencontré des difficultés techniques de dernière minute, notamment :
-
-Des problèmes de communication entre les différents conteneurs, en particulier avec le service eSignet.
-
-Des erreurs d'assertion empêchant certaines parties du système de fonctionner comme prévu dans l’environnement conteneurisé.
-
-Malgré nos efforts pour résoudre ces blocages, le temps nous a manqué pour finaliser une solution pleinement fonctionnelle à temps.
-
-
-
-
-## 🙌 Crédits
-
-Projet réalisé par RETR0 
-Dans le cadre du Digital Id Hackathon Western Africa
+> 🧪 The code remains available for any future evolution or contribution around multilingualism.
 
 ---
 
-## 📄 Licence
+🚧 Containerization Attempt
+We undertook to containerize the entire project to facilitate deployment and portability. Although the majority of components were correctly isolated in Docker containers, we encountered last-minute technical difficulties, notably:
 
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus d’informations.
+Communication problems between different containers, particularly with the eSignet service.
+
+Assertion errors preventing certain parts of the system from functioning as expected in the containerized environment.
+
+Despite our efforts to resolve these blockers, we ran out of time to finalize a fully functional solution in time.
+
+
+
+
+## 🙌 Credits
+
+Project created by RETR0  
+As part of the Digital ID Hackathon Western Africa
+
+---
+
+## 📄 License
+
+This project is under MIT license. See the `LICENSE` file for more information.
 ```
 
 ---
-
