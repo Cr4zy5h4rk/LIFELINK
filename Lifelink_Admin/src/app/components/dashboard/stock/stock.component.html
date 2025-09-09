@@ -1,0 +1,188 @@
+<div class="blood-stock-container">
+    <header class="header">
+      <h1>Gestion des Stocks de Sang</h1>
+      <div class="header-actions">
+        <button class="btn btn-primary" (click)="addNewStock()">
+          <i class="fas fa-plus-circle"></i> Nouveau Stock
+        </button>
+        <button class="btn btn-outline" (click)="exportData()">
+          <i class="fas fa-file-export"></i> Exporter
+        </button>
+        <button class="btn btn-warning" (click)="setAllAlerts()">
+          <i class="fas fa-bell"></i> Envoyer Alertes
+        </button>
+      </div>
+    </header>
+  
+    <div class="dashboard-summary">
+      <div class="summary-cards">
+        <div *ngFor="let total of getTotalByType()" class="blood-type-card" [ngClass]="'blood-type-' + total.type.replace('+', 'plus').replace('-', 'minus')">
+          <div class="blood-type-icon">{{total.type}}</div>
+          <div class="blood-type-info">
+            <span class="blood-type-count">{{total.count}}</span>
+            <span class="blood-type-unit">poches</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="filters-container">
+      <div class="filter-group">
+        <label for="region">Région:</label>
+        <select id="region" [(ngModel)]="selectedRegion" (change)="onRegionChange(selectedRegion)">
+          <option value="Toutes">Toutes les régions</option>
+          <option *ngFor="let region of regions" [value]="region.name">{{region.name}}</option>
+        </select>
+      </div>
+  
+      <div class="filter-group">
+        <label for="bloodBank">Banque de Sang:</label>
+        <select id="bloodBank" [(ngModel)]="selectedBloodBank" (change)="onBloodBankChange(selectedBloodBank)">
+          <option value="Toutes">Toutes les banques</option>
+          <option *ngFor="let bank of getAvailableBloodBanks()" [value]="bank.name">{{bank.name}}</option>
+        </select>
+      </div>
+  
+      <div class="filter-group">
+        <label for="bloodType">Type Sanguin:</label>
+        <select id="bloodType" [(ngModel)]="selectedBloodType" (change)="onBloodTypeChange(selectedBloodType)">
+          <option value="Tous">Tous les types</option>
+          <option *ngFor="let type of bloodTypes" [value]="type">{{type}}</option>
+        </select>
+      </div>
+    </div>
+  
+    <!-- Vue regroupée par banque de sang -->
+    <div class="blood-banks-container">
+      <!-- Groupe les stocks par région puis par banque de sang -->
+      <ng-container *ngFor="let region of getFilteredRegions()">
+        <div class="region-section">
+          <h2 class="region-title">{{region.name}}</h2>
+          
+          <div class="blood-banks-grid">
+            <ng-container *ngFor="let bank of getFilteredBanksForRegion(region.name)">
+              <div class="blood-bank-card">
+                <div class="blood-bank-header">
+                  <h3>{{bank.name}}</h3>
+                  <p class="blood-bank-address">{{bank.address}}</p>
+                </div>
+                
+                <div class="blood-bank-summary">
+                  <div class="blood-types-overview">
+                    <div *ngFor="let type of getStockStatusForBank(region.name, bank.name)" 
+                         class="stock-pill" 
+                         [ngClass]="getStatusClass(type.status)">
+                      <span class="blood-type">{{type.bloodType}}</span>
+                      <span class="quantity">{{type.quantity}}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="blood-bank-actions">
+                  <button class="btn-text" (click)="toggleBankDetails(region.name, bank.name)">
+                    <i class="fas" [ngClass]="isBankDetailsOpen(region.name, bank.name) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                    {{isBankDetailsOpen(region.name, bank.name) ? 'Cacher les détails' : 'Voir les détails'}}
+                  </button>
+                </div>
+                
+                <!-- Détails expandables -->
+                <div class="blood-bank-details" *ngIf="isBankDetailsOpen(region.name, bank.name)">
+                  <table class="stock-details-table">
+                    <thead>
+                      <tr>
+                        <th>Type</th>
+                        <th>Quantité</th>
+                        <th>Statut</th>
+                        <th>Expiration</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let stock of getStocksForBank(region.name, bank.name)" [ngClass]="getStatusClass(stock.status)">
+                        <td class="blood-type-cell">
+                          <span class="blood-type-badge" [ngClass]="'blood-type-' + stock.bloodType.replace('+', 'plus').replace('-', 'minus')">
+                            {{stock.bloodType}}
+                          </span>
+                        </td>
+                        <td>{{stock.quantity}} {{stock.unit}}</td>
+                        <td>
+                          <span class="status-badge" [ngClass]="getStatusClass(stock.status)">
+                            {{stock.status}}
+                          </span>
+                        </td>
+                        <td>{{formatDate(stock.expiryDate)}}</td>
+                        <td class="actions-cell">
+                          <button class="btn-icon" (click)="editStock(stock)" title="Modifier">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button class="btn-icon btn-danger" (click)="deleteStock(stock.id)" title="Supprimer">
+                            <i class="fas fa-trash-alt"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </ng-container>
+  
+      <!-- Message si aucun résultat -->
+      <div class="no-results" *ngIf="getFilteredRegions().length === 0">
+        <i class="fas fa-search"></i>
+        <p>Aucun résultat ne correspond à vos critères de recherche.</p>
+      </div>
+    </div>
+  
+    <!-- Modal d'édition -->
+    <div class="modal-overlay" *ngIf="isEditing">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>{{currentStock?.id ? 'Modifier Stock' : 'Nouveau Stock'}}</h2>
+          <button class="btn-close" (click)="cancelEdit()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="editRegion">Région:</label>
+            <select id="editRegion" [(ngModel)]="currentStock!.region" required>
+              <option *ngFor="let region of regions" [value]="region.name">{{region.name}}</option>
+            </select>
+          </div>
+  
+          <div class="form-group">
+            <label for="editBloodBank">Banque de Sang:</label>
+            <select id="editBloodBank" [(ngModel)]="currentStock!.bloodBank" required>
+              <option *ngFor="let bank of getAvailableBloodBanks()" [value]="bank.name">{{bank.name}}</option>
+            </select>
+          </div>
+  
+          <div class="form-group">
+            <label for="editBloodType">Type Sanguin:</label>
+            <select id="editBloodType" [(ngModel)]="currentStock!.bloodType" required>
+              <option *ngFor="let type of bloodTypes" [value]="type">{{type}}</option>
+            </select>
+          </div>
+  
+          <div class="form-group">
+            <label for="editQuantity">Quantité:</label>
+            <input type="number" id="editQuantity" [(ngModel)]="currentStock!.quantity" min="0" required>
+          </div>
+  
+          <div class="form-group">
+            <label for="editExpiryDate">Date d'Expiration:</label>
+            <input type="date" id="editExpiryDate" [(ngModel)]="currentStock!.expiryDate" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" (click)="cancelEdit()">Annuler</button>
+          <button class="btn btn-primary" (click)="currentStock?.id ? saveChanges() : saveNewStock()">
+            Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,54 @@
+<div class="callback-container">
+    <div class="card">
+      <!-- Logo et titre -->
+      <div class="logo-container">
+        <img [src]="logoUrl" alt="LifeLink Logo" class="logo">
+        <h1>LifeLink</h1>
+      </div>
+      
+      <!-- Zone de chargement -->
+      <div class="loading-section" *ngIf="isLoading && !error">
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="loadingProgress"></div>
+          </div>
+          <div class="progress-text">{{ loadingProgress }}%</div>
+        </div>
+        
+        <div class="status-message">
+          <div class="pulse-dot"></div>
+          <p>{{ loadingSteps[currentStep] }}</p>
+        </div>
+        
+        <div class="animated-blood-drop">
+          <div class="drop"></div>
+          <div class="ripple"></div>
+        </div>
+      </div>
+      
+      <!-- Message d'erreur -->
+      <div class="error-container" *ngIf="error">
+        <div class="error-icon">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <p class="error-message">{{ error }}</p>
+        <p class="redirect-message">Redirection vers la page de connexion dans quelques secondes...</p>
+      </div>
+      
+      <!-- Message de réussite (s'affiche brièvement avant la redirection) -->
+      <div class="success-container" *ngIf="isLoading && loadingProgress >= 100 && !error">
+        <div class="success-icon">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <p class="success-message">Connexion réussie !</p>
+        <p class="redirect-message">Vous allez être redirigé vers votre tableau de bord...</p>
+      </div>
+    </div>
+    
+    <!-- Fond animé -->
+    <div class="wave-container">
+      <div class="wave wave1"></div>
+      <div class="wave wave2"></div>
+      <div class="wave wave3"></div>
+    </div>
+  </div>

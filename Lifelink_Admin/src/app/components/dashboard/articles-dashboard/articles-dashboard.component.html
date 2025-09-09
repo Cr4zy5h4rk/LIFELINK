@@ -1,0 +1,171 @@
+<div class="container-fluid">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Gestion des Articles</h2>
+    <button class="btn btn-primary" [routerLink]="['/dashboard/articles/new']">
+      <i class="bi bi-plus-circle me-2"></i>Nouvel Article
+    </button>
+  </div>
+
+  <!-- Filtres -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Filtres</h5>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Rechercher un article..." 
+              [(ngModel)]="searchTerm" 
+              (keyup.enter)="applyFilters()"
+            >
+            <button class="btn btn-outline-secondary" type="button" (click)="applyFilters()">Rechercher</button>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <select class="form-select" [(ngModel)]="categoryFilter" (change)="applyFilters()">
+            <option value="">Toutes les catégories</option>
+            <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-outline-secondary w-100" (click)="resetFilters()">
+            <i class="bi bi-x-circle me-2"></i>Réinitialiser
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message de chargement -->
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="mt-2">Chargement des articles...</p>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+    <button class="btn btn-sm btn-outline-danger ms-2" (click)="loadPosts()">Réessayer</button>
+  </div>
+
+  <!-- Tableau des articles -->
+  <div *ngIf="!loading && !error">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="card-title mb-0">Liste des Articles ({{ totalPosts }})</h5>
+        </div>
+        
+        <div *ngIf="posts.length === 0" class="alert alert-info">
+          <i class="bi bi-info-circle-fill me-2"></i>Aucun article ne correspond aux critères sélectionnés.
+        </div>
+        
+        <div class="table-responsive" *ngIf="posts.length > 0">
+          <table class="table table-hover table-striped align-middle">
+            <thead class="table-light">
+              <tr>
+                <th scope="col" style="width: 5%">#</th>
+                <th scope="col" style="width: 20%">Titre</th>
+                <th scope="col" style="width: 30%">Contenu</th>
+                <th scope="col" style="width: 10%">Image</th>
+                <th scope="col" style="width: 10%">Auteur</th>
+                <th scope="col" style="width: 15%">Date</th>
+                <th scope="col" style="width: 10%">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let post of posts; let i = index">
+                <td>{{ (currentPage-1) * postsPerPage + i + 1 }}</td>
+                <td>
+                  <strong>{{ post.title }}</strong>
+                  <div class="mt-1">
+                    <span *ngIf="post.hasAudio" class="badge bg-success me-1">
+                      <i class="bi bi-volume-up me-1"></i>Audio ({{ post.audioLanguage }})
+                    </span>
+                    <!-- <span *ngIf="post.isFavorite" class="badge bg-warning text-dark">
+                      <i class="bi bi-star-fill me-1"></i>Favoris
+                    </span> -->
+                  </div>
+                </td>
+                <td>{{ truncateContent(post.content) }}</td>
+                <td>
+                  <img 
+                    *ngIf="post.imageUrl" 
+                    [src]="post.imageUrl" 
+                    class="img-thumbnail" 
+                    style="max-height: 80px; max-width: 100%;"
+                    alt="Miniature de l'article"
+                  >
+                  <span *ngIf="!post.imageUrl" class="text-muted">Aucune image</span>
+                </td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img 
+                      *ngIf="post.authorImageUrl" 
+                      [src]="post.authorImageUrl" 
+                      class="rounded-circle me-2" 
+                      style="width: 30px; height: 30px;" 
+                      alt="Avatar de l'auteur"
+                    >
+                    <span *ngIf="!post.authorImageUrl" class="bi bi-person-circle me-2" style="font-size: 1.5rem;"></span>
+                    {{ post.author }}
+                  </div>
+                </td>
+                <td>{{ formatDate(post.publishDate) }}</td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-primary" [routerLink]="['/dashboard/articles/edit', post.id]">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-info" [routerLink]="['/dashboard/articles/view', post.id]">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="deletePost(post.id)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination -->
+        <nav *ngIf="totalPages > 1" aria-label="Page navigation">
+          <ul class="pagination justify-content-center mt-4">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <a class="page-link" href="javascript:void(0)" (click)="goToPage(1)">
+                <i class="bi bi-chevron-double-left"></i>
+              </a>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <a class="page-link" href="javascript:void(0)" (click)="goToPage(currentPage - 1)">
+                <i class="bi bi-chevron-left"></i>
+              </a>
+            </li>
+            
+            <li class="page-item" *ngFor="let page of pagesArray" [class.active]="page === currentPage">
+              <a class="page-link" href="javascript:void(0)" (click)="goToPage(page)">{{ page }}</a>
+            </li>
+            
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <a class="page-link" href="javascript:void(0)" (click)="goToPage(currentPage + 1)">
+                <i class="bi bi-chevron-right"></i>
+              </a>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <a class="page-link" href="javascript:void(0)" (click)="goToPage(totalPages)">
+                <i class="bi bi-chevron-double-right"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>

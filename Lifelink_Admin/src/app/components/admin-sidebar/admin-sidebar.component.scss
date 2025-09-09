@@ -1,0 +1,285 @@
+/* Styles pour la sidebar modernisée */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(180deg, #f44336 0%, #e91e63 100%);
+  color: #fff;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+/* États de la sidebar */
+.sidebar-collapsed {
+  width: 70px;
+}
+
+.sidebar-expanded {
+  width: 260px;
+}
+
+/* Entête de la sidebar */
+.sidebar-header {
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.toggle-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.logo-text {
+  font-weight: 600;
+  font-size: 20px;
+  margin-left: 10px;
+  letter-spacing: 1px;
+}
+
+/* Section profil */
+.user-profile {
+  padding: 20px 15px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-image {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #fff;
+  flex-shrink: 0;
+}
+
+.profile-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-info {
+  margin-left: 15px;
+  flex: 1;
+}
+
+.profile-name {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.profile-role {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.profile-dropdown {
+  margin-left: auto;
+}
+
+.dropdown-toggle {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.dropdown-menu {
+  background: #fff;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin-top: 10px;
+  min-width: 180px;
+  border: none;
+}
+
+.dropdown-item {
+  padding: 8px 15px;
+  color: #333;
+  transition: background-color 0.3s;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.dropdown-divider {
+  margin: 5px 0;
+  border-color: #eee;
+}
+
+/* Menu de navigation */
+.sidebar-menu {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 0;
+}
+
+.nav-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.nav-item {
+  margin: 5px 10px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  text-decoration: none;
+  color: #fff;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.nav-link.active {
+  background-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background-color: #fff;
+  border-radius: 0 4px 4px 0;
+}
+
+.nav-icon {
+  width: 22px;
+  display: flex;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.sidebar-collapsed .nav-icon {
+  margin: 0 auto;
+}
+
+.nav-text {
+  margin-left: 15px;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.nav-badge {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+/* Pied de la sidebar */
+.sidebar-footer {
+  padding: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.footer-menu {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.footer-item {
+  color: #fff;
+  opacity: 0.7;
+  font-size: 18px;
+  transition: opacity 0.3s;
+}
+
+.footer-item:hover {
+  opacity: 1;
+}
+
+.copyright {
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+/* Styles responsive */
+@media (max-width: 992px) {
+  .sidebar-expanded {
+    transform: translateX(0);
+  }
+  
+  .sidebar-collapsed {
+    transform: translateX(-100%);
+    width: 260px;
+  }
+  
+  .sidebar-collapsed .nav-text,
+  .sidebar-collapsed .profile-info,
+  .sidebar-collapsed .sidebar-footer {
+    display: none;
+  }
+  
+  .toggle-btn i {
+    transform: rotate(180deg);
+  }
+}
+
+/* Scrollbar personnalisée */
+.sidebar-menu::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sidebar-menu::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}

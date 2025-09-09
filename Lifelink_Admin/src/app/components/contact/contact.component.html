@@ -1,0 +1,132 @@
+ 
+  <section class="hero">
+    <div class="container">
+      <h1>Contactez-nous</h1>
+      <p>Nous sommes là pour répondre à toutes vos questions sur le don de sang</p>
+    </div>
+  </section>
+  
+  <section class="contact-info">
+    <div class="container">
+      <div class="info-cards">
+        <div *ngFor="let card of contactInfoCards" class="card">
+          <div class="icon">
+            <i class="fas fa-{{ card.icon }}"></i>
+          </div>
+          <h3>{{ card.title }}</h3>
+          <p *ngFor="let line of card.lines">{{ line }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section class="contact-form-section">
+    <div class="container">
+      <div class="form-and-map">
+        <div class="contact-form">
+          <h2>Envoyez-nous un message</h2>
+          <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" *ngIf="!formSubmitted">
+            <div class="form-group">
+              <label for="name">Nom complet</label>
+              <input type="text" id="name" formControlName="name">
+              <div *ngIf="hasError('name', 'required')" class="error-message">
+                Le nom est requis
+              </div>
+              <div *ngIf="hasError('name', 'minlength')" class="error-message">
+                Le nom doit contenir au moins 2 caractères
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" formControlName="email">
+              <div *ngIf="hasError('email', 'required')" class="error-message">
+                L'email est requis
+              </div>
+              <div *ngIf="hasError('email', 'email')" class="error-message">
+                Veuillez entrer une adresse email valide
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="phone">Téléphone</label>
+              <input type="tel" id="phone" formControlName="phone">
+            </div>
+            
+            <div class="form-group">
+              <label for="subject">Sujet</label>
+              <select id="subject" formControlName="subject">
+                <option value="" selected disabled>Sélectionnez un sujet</option>
+                <option value="don">Don de sang</option>
+                <option value="information">Demande d'informations</option>
+                <option value="partenariat">Partenariat</option>
+                <option value="autre">Autre</option>
+              </select>
+              <div *ngIf="hasError('subject', 'required')" class="error-message">
+                Veuillez sélectionner un sujet
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="message">Message</label>
+              <textarea id="message" formControlName="message" rows="5"></textarea>
+              <div *ngIf="hasError('message', 'required')" class="error-message">
+                Le message est requis
+              </div>
+              <div *ngIf="hasError('message', 'minlength')" class="error-message">
+                Le message doit contenir au moins 10 caractères
+              </div>
+            </div>
+            
+            <button type="submit" class="submit-btn" [disabled]="isSubmitting">
+              {{ isSubmitting ? 'Envoi en cours...' : 'Envoyer le message' }}
+            </button>
+          </form>
+          
+          <div *ngIf="formSubmitted" class="form-success">
+            <i class="fas fa-check-circle"></i>
+            <p>Votre message a été envoyé avec succès! Nous vous répondrons dans les plus brefs délais.</p>
+          </div>
+        </div>
+        
+        <div class="map">
+          <h2>Nous localiser</h2>
+          <div class="map-container">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3859.1686414051895!2d-17.47283122570626!3d14.692359175748338!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xec172f3b5e0dce7%3A0x73862a5a0ba5fb38!2sUniversit%C3%A9%20Cheikh%20Anta%20Diop%20de%20Dakar!5e0!3m2!1sfr!2sfr!4v1689089544119!5m2!1sfr!2sfr" 
+                    width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section class="faq-section">
+    <div class="container">
+      <h2>Questions fréquentes</h2>
+      <div class="faq-container">
+        <div *ngFor="let faq of faqItems; let i = index" class="faq-item" [class.active]="faq.isActive">
+          <div class="faq-question" (click)="toggleFaqItem(i)">
+            <h3>{{ faq.question }}</h3>
+            <span class="toggle-icon">
+              <i class="fas" [ngClass]="faq.isActive ? 'fa-minus' : 'fa-plus'"></i>
+            </span>
+          </div>
+          <div class="faq-answer">
+            <p>{{ faq.answer }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section class="cta-section">
+    <div class="container">
+      <h2>Prêt à sauver des vies ?</h2>
+      <p>Chaque don compte. Rejoignez notre communauté de donneurs aujourd'hui.</p>
+      <div class="cta-buttons">
+        <a routerLink="/donation" class="btn primary-btn">Faire un don</a>
+        <a routerLink="/centers" class="btn secondary-btn">Trouver un centre</a>
+      </div>
+    </div>
+  </section>

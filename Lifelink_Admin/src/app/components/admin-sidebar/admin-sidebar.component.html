@@ -1,0 +1,75 @@
+<div class="sidebar" [ngClass]="collapsed ? 'sidebar-expanded': 'sidebar-collapsed'">
+  <!-- Entête et logo -->
+  <div class="sidebar-header">
+    <div class="logo-container">
+      <button class="toggle-btn" (click)="toggleCollapse()">
+        <i class="bi" [ngClass]="collapsed ? 'bi-arrow-left' : 'bi-arrow-right'"></i>
+      </button>
+      <div class="logo-text" *ngIf="collapsed">LifeLink</div>
+    </div>
+  </div>
+
+  <!-- Profil utilisateur -->
+  <div class="user-profile">
+    <div class="profile-image">
+      <img src={{userInfo?.picture}} alt="Photo de profil">
+    </div>
+    <div class="profile-info" *ngIf="collapsed">
+      <h3 class="profile-name">{{userInfo?.firstName}}</h3>
+      <span class="profile-role">Administrateur</span>
+    </div>
+    <div class="profile-dropdown" *ngIf="collapsed">
+      <div class="dropdown">
+        <button class="dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-three-dots-vertical"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+          <li><a class="dropdown-item" [routerLink]="['profile']"><i class="bi bi-person me-2"></i>Mon profil</a></li>
+          <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Paramètres</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="#" (click)="logout()"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Menu de navigation -->
+  <div class="sidebar-menu">
+    <ul class="nav-list">
+      <li class="nav-item" *ngFor="let item of navData">
+        <a class="nav-link" 
+           [routerLink]="[item.routeLink]" 
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{exact: true}">
+          <div class="nav-icon">
+            <i [class]="item.icon"></i>
+          </div>
+          <div class="nav-text" *ngIf="collapsed">
+            {{item.label}}
+          </div>
+          <div class="nav-badge" *ngIf="item.badge && collapsed">
+            <span class="badge" [ngClass]="item.badgeClass || 'bg-primary'">{{item.badge}}</span>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Pied de la sidebar -->
+  <div class="sidebar-footer" *ngIf="collapsed">
+    <div class="footer-menu">
+      <a href="#" class="footer-item" title="Paramètres">
+        <i class="bi bi-gear"></i>
+      </a>
+      <a href="#" class="footer-item" title="Notifications">
+        <i class="bi bi-bell"></i>
+      </a>
+      <a href="#" class="footer-item" (click)="logout()" title="Déconnexion">
+        <i class="bi bi-box-arrow-right"></i>
+      </a>
+    </div>
+    <div class="copyright">
+      LifeLink © 2025
+    </div>
+  </div>
+</div>

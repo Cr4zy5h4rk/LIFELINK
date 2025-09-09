@@ -1,0 +1,242 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1><i class="fas fa-heartbeat"></i> Gestion des Campagnes de Don de Sang</h1>
+    <div class="dashboard-actions">
+      <button class="btn-filter" (click)="filterByStatus('all')" [class.active]="currentFilter === 'all'">
+        Toutes les campagnes
+      </button>
+      <button class="btn-filter" (click)="filterByStatus('IN_PROGRESS')" [class.active]="currentFilter === 'IN_PROGRESS'">
+        <i class="fas fa-play-circle"></i> Actives
+      </button>
+      <button class="btn-filter" (click)="filterByStatus('NOT_STARTED')" [class.active]="currentFilter === 'NOT_STARTED'">
+        <i class="fas fa-calendar-alt"></i> Planifiées
+      </button>
+      <button class="btn-filter" (click)="filterByStatus('COMPLETED')" [class.active]="currentFilter === 'COMPLETED'">
+        <i class="fas fa-check-circle"></i> Terminées
+      </button>
+      <button class="btn-filter" (click)="filterByStatus('CANCELLED')" [class.active]="currentFilter === 'CANCELLED'">
+        <i class="fas fa-ban"></i> Annulées
+      </button>
+      <button class="btn-primary" (click)="showAddForm()">
+        <i class="fas fa-plus"></i> Nouvelle Campagne
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistiques des campagnes -->
+  <div class="stats-container">
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.total }}</div>
+        <div class="stat-label">Campagnes totales</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon active"><i class="fas fa-heartbeat"></i></div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.active }}</div>
+        <div class="stat-label">Campagnes actives</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon planned"><i class="fas fa-clock"></i></div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.planned }}</div>
+        <div class="stat-label">Campagnes planifiées</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon completed"><i class="fas fa-flag-checkered"></i></div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats.completed }}</div>
+        <div class="stat-label">Campagnes terminées</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaire d'ajout/modification de campagne -->
+  <div class="form-container" *ngIf="showForm">
+    <div class="form-card">
+      <div class="form-header">
+        <h2>{{ isEditing ? 'Modifier la Campagne' : 'Nouvelle Campagne' }}</h2>
+        <button class="btn-close" (click)="cancelForm()"><i class="fas fa-times"></i></button>
+      </div>
+      <form [formGroup]="campaignForm" (ngSubmit)="saveCampaign()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="title">Titre <span class="required">*</span></label>
+            <input type="text" id="title" formControlName="title" class="form-control">
+            <div class="error-message" *ngIf="campaignForm.get('title')?.invalid && campaignForm.get('title')?.touched">
+              Le titre est requis
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="location">Lieu <span class="required">*</span></label>
+            <input type="text" id="location" formControlName="location" class="form-control">
+            <div class="error-message" *ngIf="campaignForm.get('location')?.invalid && campaignForm.get('location')?.touched">
+              Le lieu est requis
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="startDate">Date de début <span class="required">*</span></label>
+            <input type="datetime-local" id="startDate" formControlName="startDate" class="form-control">
+            <div class="error-message" *ngIf="campaignForm.get('startDate')?.invalid && campaignForm.get('startDate')?.touched">
+              La date de début est requise
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="endDate">Date de fin <span class="required">*</span></label>
+            <input type="datetime-local" id="endDate" formControlName="endDate" class="form-control">
+            <div class="error-message" *ngIf="campaignForm.get('endDate')?.invalid && campaignForm.get('endDate')?.touched">
+              La date de fin est requise
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="contactPhone">Téléphone de contact</label>
+            <input type="tel" id="contactPhone" formControlName="contactPhone" class="form-control">
+          </div>
+          
+          <div class="form-group">
+            <label for="schedule">Informations complémentaires <span class="required">*</span></label>
+            <textarea id="schedule" formControlName="schedule" class="form-control" rows="3"></textarea>
+            <div class="error-message" *ngIf="campaignForm.get('schedule')?.invalid && campaignForm.get('schedule')?.touched">
+              Les informations complémentaires sont requises
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="status">Statut <span class="required">*</span></label>
+            <select id="status" formControlName="status" class="form-control">
+              <option value="NOT_STARTED">Planifiée</option>
+              <option value="IN_PROGRESS">Active</option>
+              <option value="COMPLETED">Terminée</option>
+              <option value="CANCELLED">Annulée</option>
+            </select>
+            <div class="error-message" *ngIf="campaignForm.get('status')?.invalid && campaignForm.get('status')?.touched">
+              Le statut est requis
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="imageUrl">URL de l'image</label>
+            <input type="url" id="imageUrl" formControlName="imageUrl" class="form-control">
+          </div>
+          
+          <div class="form-group full-width">
+            <label for="description">URL Audio (Description) <span class="required">*</span></label>
+            <input type="url" id="description" formControlName="description" class="form-control">
+            <div class="error-message" *ngIf="campaignForm.get('description')?.invalid && campaignForm.get('description')?.touched">
+              L'URL audio est requise
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="cancelForm()">Annuler</button>
+          <button type="submit" class="btn-save" [disabled]="!campaignForm.valid">
+            {{ isEditing ? 'Mettre à jour' : 'Créer la campagne' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirmation de suppression -->
+  <div class="modal-backdrop" *ngIf="showDeleteConfirm" (click)="cancelDelete()"></div>
+  <div class="modal-container" *ngIf="showDeleteConfirm">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i class="fas fa-exclamation-triangle"></i> Confirmation de suppression</h3>
+      </div>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer la campagne "{{ campaignToDelete?.title }}" ?</p>
+        <p class="warning">Cette action est irréversible.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="cancelDelete()">Annuler</button>
+        <button class="btn-delete" (click)="confirmDelete()">Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liste des campagnes -->
+  <div class="campaigns-container">
+    <div class="campaigns-empty" *ngIf="filteredCampaigns.length === 0">
+      <i class="fas fa-info-circle"></i>
+      <p>Aucune campagne trouvée pour ce filtre. Créez-en une nouvelle !</p>
+    </div>
+    
+    <div class="campaign-card" *ngFor="let campaign of filteredCampaigns">      
+      <div class="campaign-header">
+        <div class="d-flex flex-column">
+          <div class="campaign-title">{{ campaign.title }}</div>
+          <div class="campaign-status" [ngClass]="getCampaignStatusClass(campaign.status)">
+            {{ getStatusLabel(campaign.status) }}
+          </div>
+        </div>
+        <div class="campaign-actions">
+          <button class="btn-icon edit" (click)="editCampaign(campaign)">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn-icon delete" (click)="deleteCampaign(campaign)">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="campaign-image" *ngIf="campaign.imageUrl">
+        <img [src]="campaign.imageUrl" alt="{{ campaign.title }}">
+      </div>
+      <div class="campaign-image placeholder" *ngIf="!campaign.imageUrl">
+        <i class="fas fa-hand-holding-medical"></i>
+      </div>
+      
+      <div class="campaign-info">
+        <div class="info-item">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>{{ campaign.location }}</span>
+        </div>
+        
+        <div class="info-item">
+          <i class="fas fa-calendar-day"></i>
+          <span>Du {{ campaign.startDate | date:'dd/MM/yyyy' }} au {{ campaign.endDate | date:'dd/MM/yyyy' }}</span>
+        </div>
+        
+        <!-- Audio player for description -->
+        <div class="info-item audio-container">
+          <i class="fas fa-volume-up"></i>
+          <audio controls>
+            <source [src]="campaign.description" type="audio/mpeg">
+            Votre navigateur ne supporte pas l'élément audio.
+          </audio>
+        </div>
+        
+        <div class="info-item" *ngIf="campaign.contactPhone">
+          <i class="fas fa-phone"></i>
+          <span>{{ campaign.contactPhone }}</span>
+        </div>
+      </div>
+      
+      <!-- Parse and display schedule info -->
+      <div class="campaign-details" *ngIf="campaign.schedule">
+        <div class="detail-section" *ngIf="getScheduleInfo(campaign.schedule, 'Title')">
+          <h3>{{ getScheduleInfo(campaign.schedule, 'Title') }}</h3>
+        </div>
+        <div class="detail-section" *ngIf="getScheduleInfo(campaign.schedule, 'Description')">
+          <p>{{ getScheduleInfo(campaign.schedule, 'Description') }}</p>
+        </div>
+        <div class="detail-section" *ngIf="getScheduleInfo(campaign.schedule, 'Schedule')">
+          <div class="info-item">
+            <i class="fas fa-clock"></i>
+            <span>{{ getScheduleInfo(campaign.schedule, 'Schedule') }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

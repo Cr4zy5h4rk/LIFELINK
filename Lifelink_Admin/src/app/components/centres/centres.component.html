@@ -1,0 +1,331 @@
+<div class="donation-centers-page">
+  <!-- Section Hero avec illustration du Sénégal -->
+  <div class="hero-section">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-6">
+          <h1>Centres de Don de Sang au Sénégal</h1>
+          <p class="lead">Trouvez facilement un centre pour donner votre sang et sauver des vies</p>
+          
+          <div class="search-container">
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input 
+                type="text" 
+                class="form-control" 
+                placeholder="Rechercher un centre de don..." 
+                [(ngModel)]="filters.search"
+                (keyup.enter)="applyFilters()"
+              >
+              <button class="btn btn-primary" (click)="applyFilters()">Rechercher</button>
+            </div>
+          </div>
+          
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="stat-value">{{ getTotalCenters() }}</div>
+              <div class="stat-label">Centres de don</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ getCitiesCount() }}</div>
+              <div class="stat-label">Villes</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="hero-image">
+            <img src="../../../assets/img/image-removebg-preview.png" alt="Carte du Sénégal" class="img-fluid">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Contenu principal -->
+  <div class="main-content">
+    <div class="container">
+      <div class="row">
+        <!-- Filtres et statistiques à gauche -->
+        <div class="col-lg-3">
+          <div class="sidebar">
+            <!-- Carte des filtres -->
+            <div class="filter-card">
+              <h3>Filtres</h3>
+              
+              <div class="filter-group">
+                <label>Ville</label>
+                <select class="form-select" [(ngModel)]="filters.city" (change)="applyFilters()">
+                  <option value="">Toutes les villes</option>
+                  <option *ngFor="let cityStats of cities" [value]="cityStats.city">
+                    {{ cityStats.city }} ({{ cityStats.count }})
+                  </option>
+                </select>
+              </div>
+              
+              <div class="filter-group">
+                <label>Options</label>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="withAudio" [(ngModel)]="filters.withAudio" (change)="applyFilters()">
+                  <label class="form-check-label" for="withAudio">
+                    Avec audio en Wolof
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="withPartner" [(ngModel)]="filters.withPartner" (change)="applyFilters()">
+                  <label class="form-check-label" for="withPartner">
+                    Avec partenaires
+                  </label>
+                </div>
+              </div>
+              
+              <button class="btn btn-outline-secondary w-100 mt-3" (click)="resetFilters()">
+                <i class="bi bi-arrow-counterclockwise me-2"></i>Réinitialiser
+              </button>
+            </div>
+            
+            <!-- Affichage des villes -->
+            <div class="cities-card">
+              <h3>Villes</h3>
+              <ul class="cities-list">
+                <li *ngFor="let cityStats of cities.slice(0, 5)" (click)="filterByCity(cityStats.city)" [class.active]="filters.city === cityStats.city">
+                  <span class="city-name">{{ cityStats.city }}</span>
+                  <span class="city-count">{{ cityStats.count }}</span>
+                </li>
+              </ul>
+              <div *ngIf="cities.length > 5" class="more-cities">
+                <a href="javascript:void(0)">Voir toutes les villes</a>
+              </div>
+            </div>
+            
+            <!-- Carte d'information -->
+            <div class="info-card">
+              <div class="info-icon">
+                <i class="bi bi-droplet-fill"></i>
+              </div>
+              <h3>Pourquoi donner?</h3>
+              <p>Un don de sang peut sauver jusqu'à trois vies. Le sang est utilisé lors des opérations, des accidents et pour les personnes souffrant de maladies chroniques.</p>
+              <a href="#" class="btn btn-link">En savoir plus</a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Liste des centres à droite -->
+        <div class="col-lg-9">
+          <div class="content-header">
+            <div class="d-flex justify-content-between align-items-center">
+              <h2>Centres disponibles</h2>
+              <div class="view-toggle">
+                <button class="btn btn-sm" [ngClass]="{'btn-primary': !showMap, 'btn-outline-primary': showMap}" (click)="showMap = false">
+                  <i class="bi bi-list"></i> Liste
+                </button>
+                <button class="btn btn-sm" [ngClass]="{'btn-primary': showMap, 'btn-outline-primary': !showMap}" (click)="showMap = true">
+                  <i class="bi bi-map"></i> Carte
+                </button>
+              </div>
+            </div>
+            <p *ngIf="!loading && filteredCenters.length > 0" class="results-count">
+              {{ filteredCenters.length }} centre(s) trouvé(s)
+            </p>
+          </div>
+          
+          <!-- Indicateur de chargement -->
+          <div *ngIf="loading" class="loading-container">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+            <p>Chargement des centres de don...</p>
+          </div>
+          
+          <!-- Message d'erreur -->
+          <div *ngIf="error" class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+            <button class="btn btn-sm btn-danger ms-3" (click)="loadCenters()">Réessayer</button>
+          </div>
+          
+          <!-- Affichage de la carte (si activée) -->
+          <div *ngIf="showMap && !loading && !error && filteredCenters.length > 0" class="map-view">
+            <div class="map-container">
+              <!-- Ici, vous intégreriez une carte Google Maps ou Leaflet -->
+              <div class="map-placeholder">
+                <p>Carte des centres de don au Sénégal</p>
+                <small>Cliquez sur un marqueur pour voir les détails</small>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Affichage de la liste (par défaut) -->
+          <div *ngIf="!showMap && !loading && !error" class="list-view">
+            <!-- Message si aucun résultat -->
+            <div *ngIf="filteredCenters.length === 0" class="empty-results">
+              <div class="empty-icon">
+                <i class="bi bi-search"></i>
+              </div>
+              <h3>Aucun centre trouvé</h3>
+              <p>Aucun centre ne correspond à vos critères de recherche.</p>
+              <button class="btn btn-primary" (click)="resetFilters()">Réinitialiser les filtres</button>
+            </div>
+            
+            <!-- Grille des centres -->
+            <div *ngIf="filteredCenters.length > 0" class="centers-grid">
+              <div *ngFor="let center of paginatedCenters" class="center-card" [class.active]="activeCenter?.id === center.id">
+                <div class="card-header">
+                  <div class="city-badge">{{ center.address?.city || 'Non spécifié' }}</div>
+                  <h3>{{ center.hospital }}</h3>
+                  <div class="center-contact">
+                    <i class="bi bi-telephone"></i> {{ center.contact || 'Non spécifié' }}
+                  </div>
+                </div>
+                
+                <div class="card-body">
+                  <div class="center-address" *ngIf="center.address">
+                    <i class="bi bi-geo-alt"></i>
+                    <p>{{ center.address.street || '' }}, {{ center.address.postalCode || '' }} {{ center.address.city || 'Non spécifié' }}</p>
+                  </div>
+                  
+                  @if (center.centerDetails) {
+                    <div class="center-description" *ngIf="center.centerDetails">
+                      <p>{{ center.centerDetails | slice:0:150 }}{{ center.centerDetails.length > 150 ? '...' : '' }}</p>
+                    </div>
+                  }
+                  
+                  <div class="center-features">
+                    <span *ngIf="hasAudio(center)" class="feature">
+                      <i class="bi bi-volume-up"></i> Audio en Wolof
+                    </span>
+                    <span *ngIf="center.organizationPartner" class="feature">
+                      <i class="bi bi-building"></i> {{ center.organizationPartner.name }}
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="card-footer">
+                  <button class="btn btn-outline-secondary" (click)="selectCenter(center)">
+                    <i class="bi bi-info-circle"></i> Détails
+                  </button>
+                  <button *ngIf="hasMapCoordinates(center)" class="btn btn-outline-primary" (click)="openGoogleMaps(center)">
+                    <i class="bi bi-geo"></i> Voir sur la carte
+                  </button>
+                  <button class="btn btn-primary" [routerLink]="['/planifier-don', center.id]">
+                    <i class="bi bi-calendar-plus"></i> Planifier
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Pagination -->
+            <div *ngIf="totalPages > 1" class="pagination-container">
+              <nav aria-label="Pagination des centres">
+                <ul class="pagination">
+                  <li class="page-item" [class.disabled]="currentPage === 1">
+                    <a class="page-link" href="javascript:void(0)" (click)="changePage(1)">
+                      <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                  </li>
+                  <li class="page-item" [class.disabled]="currentPage === 1">
+                    <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)">
+                      <i class="bi bi-chevron-left"></i>
+                    </a>
+                  </li>
+                  
+                  <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index" 
+                      [class.active]="currentPage === i + 1">
+                    <a class="page-link" href="javascript:void(0)" (click)="changePage(i + 1)">{{ i + 1 }}</a>
+                  </li>
+                  
+                  <li class="page-item" [class.disabled]="currentPage === totalPages">
+                    <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)">
+                      <i class="bi bi-chevron-right"></i>
+                    </a>
+                  </li>
+                  <li class="page-item" [class.disabled]="currentPage === totalPages">
+                    <a class="page-link" href="javascript:void(0)" (click)="changePage(totalPages)">
+                      <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal pour les détails du centre -->
+<div *ngIf="showDetails && activeCenter" class="center-details-modal">
+  <div class="modal-backdrop" (click)="closeDetails()"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>{{ activeCenter.hospital }}</h2>
+      <button class="close-btn" (click)="closeDetails()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- Informations de contact -->
+      <div class="detail-section">
+        <h3><i class="bi bi-info-circle"></i> Coordonnées</h3>
+        <div class="contact-info">
+          <div class="info-item">
+            <i class="bi bi-telephone"></i>
+            <span>{{ activeCenter.contact || 'Non spécifié' }}</span>
+          </div>
+          <div class="info-item" *ngIf="activeCenter.address">
+            <i class="bi bi-geo-alt"></i>
+            <span>{{ activeCenter.address.street || '' }}, {{ activeCenter.address.postalCode || '' }} {{ activeCenter.address.city || 'Non spécifié' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Détails du centre -->
+      <div class="detail-section" *ngIf="activeCenter.centerDetails">
+        <h3><i class="bi bi-building"></i> À propos du centre</h3>
+        <p>{{ activeCenter.centerDetails }}</p>
+      </div>
+
+      <!-- Audio en Wolof -->
+      <div class="detail-section" *ngIf="activeCenter.wolofAudioDetails">
+        <h3><i class="bi bi-volume-up"></i> Explications en Wolof</h3>
+        <div class="audio-player">
+          <audio controls>
+            <source [src]="activeCenter.wolofAudioDetails" type="audio/mpeg">
+            Votre navigateur ne supporte pas l'élément audio.
+          </audio>
+        </div>
+      </div>
+
+      <!-- Organisation partenaire -->
+      <div class="detail-section" *ngIf="activeCenter.organizationPartner">
+        <h3><i class="bi bi-people"></i> Partenaire</h3>
+        <div class="partner-info">
+          <strong>{{ activeCenter.organizationPartner.name }}</strong>
+          <p *ngIf="activeCenter.organizationPartner.description">
+            {{ activeCenter.organizationPartner.description }}
+          </p>
+        </div>
+      </div>
+      
+      <!-- Carte si coordonnées disponibles -->
+      <div class="detail-section" *ngIf="hasMapCoordinates(activeCenter)">
+        <h3><i class="bi bi-geo"></i> Localisation</h3>
+        <div class="map-section">
+          <div class="map-container">
+            <img [src]="getCenterMapUrl(activeCenter)" alt="Carte de localisation" class="img-fluid">
+          </div>
+          <button class="btn btn-outline-primary mt-3 w-100" (click)="openGoogleMaps(activeCenter)">
+            <i class="bi bi-geo-alt"></i> Ouvrir dans Google Maps
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeDetails()">
+        <i class="bi bi-x"></i> Fermer
+      </button>
+      <button class="btn btn-primary" [routerLink]="['/planifier-don', activeCenter.id]">
+        <i class="bi bi-calendar-plus"></i> Planifier un don
+      </button>
+    </div>
+  </div>
+</div>
+</div>

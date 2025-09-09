@@ -1,0 +1,262 @@
+<div class="container-fluid">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h2 class="mb-0 fs-4">{{ isEditing ? 'Modifier l\'article' : 'Créer un nouvel article' }}</h2>
+      </div>
+      
+      <!-- Chargement -->
+      <div *ngIf="loading" class="card-body text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="mt-3">Chargement des données de l'article...</p>
+      </div>
+      
+      <!-- Erreur -->
+      <div *ngIf="error" class="alert alert-danger m-3" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+      </div>
+      
+      <!-- Formulaire -->
+      <div class="card-body" *ngIf="!loading">
+        <form [formGroup]="postForm" (ngSubmit)="onSubmit()">
+          
+          <!-- Informations générales -->
+          <h5 class="section-title mb-3">Informations générales</h5>
+          
+          <div class="row mb-3">
+            <div class="col-md-8">
+              <label for="title" class="form-label">Titre <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="title" 
+                formControlName="title" 
+                [class.is-invalid]="title?.invalid && title?.touched"
+              >
+              <div class="invalid-feedback" *ngIf="title?.invalid && title?.touched">
+                <span *ngIf="title?.errors?.['required']">Le titre est requis</span>
+                <span *ngIf="title?.errors?.['minlength']">Le titre doit comporter au moins 3 caractères</span>
+                <span *ngIf="title?.errors?.['maxlength']">Le titre ne doit pas dépasser 200 caractères</span>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <label for="category" class="form-label">Catégorie <span class="text-danger">*</span></label>
+              <select 
+                class="form-select" 
+                id="category" 
+                formControlName="category"
+                [class.is-invalid]="category?.invalid && category?.touched"
+              >
+                <option value="">Sélectionner une catégorie</option>
+                <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+              </select>
+              <div class="invalid-feedback" *ngIf="category?.invalid && category?.touched">
+                La catégorie est requise
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="content" class="form-label">Contenu <span class="text-danger">*</span></label>
+            <textarea 
+              class="form-control" 
+              id="content" 
+              formControlName="content" 
+              rows="10"
+              [class.is-invalid]="content?.invalid && content?.touched"
+            ></textarea>
+            <div class="invalid-feedback" *ngIf="content?.invalid && content?.touched">
+              <span *ngIf="content?.errors?.['required']">Le contenu est requis</span>
+              <span *ngIf="content?.errors?.['minlength']">Le contenu doit comporter au moins 10 caractères</span>
+            </div>
+          </div>
+          
+          <!-- Image de l'article -->
+          <h5 class="section-title mb-3 mt-4">Image de l'article</h5>
+          
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="imageFile" class="form-label">Télécharger une image</label>
+                <input 
+                  type="file" 
+                  class="form-control" 
+                  id="imageFile" 
+                  accept="image/*"
+                  (change)="onImageSelected($event, 'article')"
+                >
+                <div class="form-text">Formats acceptés : JPEG, PNG. Taille maximale : 2 MB</div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="imageUrl" class="form-label">Ou entrer l'URL d'une image</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="imageUrl" 
+                  formControlName="imageUrl"
+                  placeholder="https://exemple.com/image.jpg"
+                >
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="image-preview-container">
+                <div class="image-preview-label">Aperçu de l'image</div>
+                <div class="image-preview" *ngIf="imagePreview">
+                  <img [src]="imagePreview" class="img-fluid" alt="Aperçu de l'image">
+                </div>
+                <div class="image-preview empty" *ngIf="!imagePreview">
+                  <i class="bi bi-image"></i>
+                  <p>Aucune image sélectionnée</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Informations sur l'auteur -->
+          <h5 class="section-title mb-3 mt-4">Informations sur l'auteur</h5>
+          
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="author" class="form-label">Nom de l'auteur <span class="text-danger">*</span></label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="author" 
+                  formControlName="author"
+                  [class.is-invalid]="author?.invalid && author?.touched"
+                >
+                <div class="invalid-feedback" *ngIf="author?.invalid && author?.touched">
+                  Le nom de l'auteur est requis
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="authorImageUrl" class="form-label">URL de la photo de l'auteur</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="authorImageUrl" 
+                  formControlName="authorImageUrl"
+                  placeholder="https://exemple.com/avatar.jpg"
+                >
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="image-preview-container author-preview">
+                <div class="image-preview-label">Photo de l'auteur</div>
+                <div class="image-preview rounded-circle" *ngIf="authorImagePreview">
+                  <img [src]="authorImagePreview" class="img-fluid rounded-circle" alt="Photo de l'auteur">
+                </div>
+                <div class="image-preview empty rounded-circle" *ngIf="!authorImagePreview">
+                  <i class="bi bi-person"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Options audio -->
+          <h5 class="section-title mb-3 mt-4">Options audio</h5>
+          
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <div class="form-check mb-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  id="hasAudio" 
+                  formControlName="hasAudio"
+                >
+                <label class="form-check-label" for="hasAudio">
+                  Cet article possède un contenu audio
+                </label>
+              </div>
+              
+              <div class="mb-3" *ngIf="postForm.get('hasAudio')?.value">
+                <label for="audioLanguage" class="form-label">Langue de l'audio</label>
+                <select 
+                  class="form-select" 
+                  id="audioLanguage" 
+                  formControlName="audioLanguage"
+                >
+                  <option value="">Sélectionner une langue</option>
+                  <option *ngFor="let lang of audioLanguages" [value]="lang">{{ lang }}</option>
+                </select>
+              </div>
+              
+              <div class="mb-3" *ngIf="postForm.get('hasAudio')?.value">
+                <label for="audioFile" class="form-label">Fichier audio</label>
+                <input 
+                  type="file" 
+                  class="form-control" 
+                  id="audioFile" 
+                  accept="audio/*"
+                  (change)="onAudioSelected($event)"
+                >
+                <div class="form-text">Formats acceptés : MP3, WAV. Taille maximale : 10 MB</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Options de publication -->
+          <h5 class="section-title mb-3 mt-4">Options de publication</h5>
+          
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <div class="form-check mb-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  id="publishNow" 
+                  formControlName="publishNow"
+                >
+                <label class="form-check-label" for="publishNow">
+                  Publier immédiatement
+                </label>
+              </div>
+              
+              <div class="form-check mb-3">
+                <input 
+                  type="checkbox" 
+                  class="form-check-input" 
+                  id="isFavorite" 
+                  formControlName="isFavorite"
+                >
+                <label class="form-check-label" for="isFavorite">
+                  Marquer comme favori
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Boutons d'action -->
+          <div class="d-flex justify-content-between mt-4">
+            <button 
+              type="button" 
+              class="btn btn-outline-secondary" 
+              [routerLink]="['/dashboard/articles']"
+              [disabled]="submitting"
+            >
+              <i class="bi bi-arrow-left me-1"></i> Annuler
+            </button>
+            
+            <button 
+              type="submit" 
+              class="btn btn-primary" 
+              [disabled]="submitting"
+            >
+              <span *ngIf="submitting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+              <i *ngIf="!submitting" class="bi" [ngClass]="isEditing ? 'bi-save' : 'bi-plus-circle'"></i>
+              {{ isEditing ? 'Enregistrer les modifications' : 'Créer l\'article' }}
+            </button>
+          </div>
+          
+        </form>
+      </div>
+    </div>
+  </div>

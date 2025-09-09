@@ -1,0 +1,138 @@
+<div class="profile-container">
+    <!-- Affichage du chargement -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p>Chargement de votre profil...</p>
+    </div>
+  
+    <!-- Affichage des erreurs -->
+    <div *ngIf="error" class="alert alert-danger">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      {{ error }}
+    </div>
+  
+    <!-- Contenu du profil -->
+    <div *ngIf="!loading && !error && user" class="profile-content">
+      <div class="profile-header">
+        <div class="row align-items-center">
+          <div class="col-md-3 text-center">
+            <div class="profile-image">
+              <img [src]="user.picture || defaultProfileImage" alt="Photo de profil" class="img-fluid rounded-circle">
+            </div>
+          </div>
+          <div class="col-md-9">
+            <h1 class="profile-name">{{ user.firstName }} {{ user.lastName }}</h1>
+            
+            <div class="profile-badges">
+              <span class="badge bg-primary" *ngIf="user.bloodType">
+                <i class="bi bi-droplet-fill me-1"></i>
+                {{ getFullBloodType() }}
+              </span>
+              
+              <span class="badge bg-info" *ngIf="user.fidelityPoints">
+                <i class="bi bi-star-fill me-1"></i>
+                {{ user.fidelityPoints }} points de fidélité
+              </span>
+              
+              <span class="badge bg-success" *ngIf="user.lastDonationDate">
+                <i class="bi bi-calendar-check me-1"></i>
+                Dernier don: {{ formatDate(user.lastDonationDate) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Informations principales -->
+      <div class="profile-details">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="info-card">
+              <div class="card-header">
+                <h2><i class="bi bi-person-fill me-2"></i>Informations personnelles</h2>
+              </div>
+              <div class="card-body">
+                <ul class="info-list">
+                  <li>
+                    <span class="info-label">Nom complet</span>
+                    <span class="info-value">{{ user.firstName }} {{ user.lastName }}</span>
+                  </li>
+                  <li>
+                    <span class="info-label">Email</span>
+                    <span class="info-value">{{ user.email || 'Non spécifié' }}</span>
+                  </li>
+                  <li>
+                    <span class="info-label">Téléphone</span>
+                    <span class="info-value">{{ user.phoneNumber || 'Non spécifié' }}</span>
+                  </li>
+                  <li>
+                    <span class="info-label">Genre</span>
+                    <span class="info-value">{{ getGenderText(user.gender) }}</span>
+                  </li>
+                  <li>
+                    <span class="info-label">Date de naissance</span>
+                    <span class="info-value">{{ formatDate(user.birthDate) }}</span>
+                  </li>
+                  <li *ngIf="calculateAge(user.birthDate)">
+                    <span class="info-label">Âge</span>
+                    <span class="info-value">{{ calculateAge(user.birthDate) }} ans</span>
+                  </li>
+                  <li>
+                    <span class="info-label">Adresse</span>
+                    <span class="info-value">{{ user.address || 'Non spécifiée' }}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+  
+          <div class="col-md-6">
+            <div class="info-card">
+              <div class="card-header">
+                <h2><i class="bi bi-heart-fill me-2"></i>Informations de don</h2>
+              </div>
+              <div class="card-body">
+                <ul class="info-list">
+                  <li>
+                    <span class="info-label">Groupe sanguin</span>
+                    <span class="info-value blood-type">{{ getFullBloodType() }}</span>
+                  </li>
+                  <li>
+                    <span class="info-label">Points de fidélité</span>
+                    <span class="info-value">{{ user.fidelityPoints || 0 }} points</span>
+                  </li>
+                  <li>
+                    <span class="info-label">Dernier don</span>
+                    <span class="info-value">{{ user.lastDonationDate ? formatDate(user.lastDonationDate) : 'Aucun don enregistré' }}</span>
+                  </li>
+                  <li>
+                    <span class="info-label">Notifications d'urgence</span>
+                    <span class="info-value">
+                      <i class="bi" [ngClass]="user.receiveOtpForBloodRequest ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger'"></i>
+                      {{ user.receiveOtpForBloodRequest ? 'Activées' : 'Désactivées' }}
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+  
+            <!-- Carte des rôles -->
+            <div class="info-card mt-4" *ngIf="user.roles && user.roles.length > 0">
+              <div class="card-header">
+                <h2><i class="bi bi-shield-fill me-2"></i>Rôles et permissions</h2>
+              </div>
+              <div class="card-body">
+                <div class="roles-container">
+                  <span class="role-badge" *ngFor="let role of user.roles">
+                    {{ role.name || role }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

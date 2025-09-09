@@ -1,0 +1,288 @@
+<div class="public-emergencies-page">
+    <!-- Hero section -->
+    <section class="hero-section">
+      <div class="container">
+        <div class="hero-content">
+          <h1>Urgences Sanguines <span class="highlight">Critiques</span></h1>
+          <p class="lead">Découvrez les urgences actuelles et comment votre don peut sauver des vies</p>
+          
+          <div class="hero-cta">
+            <a routerLink="/register" class="btn-register">
+              <i class="bi bi-person-plus"></i> Devenir donneur
+            </a>
+            <a routerLink="/centres" class="btn-centers">
+              <i class="bi bi-geo-alt"></i> Trouver un centre
+            </a>
+          </div>
+        </div>
+        
+        <div class="blood-drop-animation">
+          <div class="drop drop-1"></div>
+          <div class="drop drop-2"></div>
+          <div class="drop drop-3"></div>
+        </div>
+      </div>
+      
+      <div class="hero-wave">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+          <path fill="#ffffff" fill-opacity="1" d="M0,160L48,176C96,192,192,224,288,229.3C384,235,480,213,576,181.3C672,149,768,107,864,106.7C960,107,1056,149,1152,165.3C1248,181,1344,171,1392,165.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+      </div>
+    </section>
+  
+    <!-- Bloc d'information -->
+    <section class="info-blocks">
+      <div class="container">
+        <div class="info-block">
+          <div class="info-icon">
+            <i class="bi bi-droplet-half"></i>
+          </div>
+          <h3>Une goutte peut tout changer</h3>
+          <p>Chaque don de sang peut sauver jusqu'à trois vies et est crucial pour les urgences médicales.</p>
+        </div>
+        
+        <div class="info-block">
+          <div class="info-icon">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <h3>30 minutes de votre temps</h3>
+          <p>Le processus de don prend seulement 30 minutes et peut faire une différence immédiate.</p>
+        </div>
+        
+        <div class="info-block">
+          <div class="info-icon">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <h3>Sécurisé par identité numérique</h3>
+          <p>Votre don est suivi et sécurisé grâce à notre système d'identité numérique africaine.</p>
+        </div>
+      </div>
+    </section>
+  
+    <!-- Section des urgences -->
+    <section class="emergencies-section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Urgences Actuelles</h2>
+          <p>Ces personnes ont besoin de votre aide. Chaque minute compte.</p>
+        </div>
+        
+        <!-- Filtres -->
+        <div class="filter-container">
+          <div class="search-bar">
+            <i class="bi bi-search"></i>
+            <input 
+              type="text" 
+              placeholder="Rechercher par titre ou hôpital..." 
+              [(ngModel)]="searchTerm"
+              (keyup)="applyFilters()"
+            >
+          </div>
+          
+          <div class="blood-type-filter">
+            <label>Filtrer par groupe sanguin</label>
+            <div class="blood-buttons">
+              <button 
+                [class.active]="selectedBloodType === ''"
+                (click)="selectedBloodType = ''; applyFilters()"
+              >
+                Tous
+              </button>
+              <button *ngFor="let type of bloodTypes"
+                [class.active]="selectedBloodType === type"
+                [class]="getBloodTypeClass(type)"
+                (click)="selectedBloodType = type; applyFilters()"
+              >
+                {{ type }}
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- État de chargement -->
+        <div *ngIf="loading" class="loading-state">
+          <div class="loading-animation">
+            <div class="blood-drop"></div>
+          </div>
+          <p>Chargement des urgences...</p>
+        </div>
+        
+        <!-- Message d'erreur -->
+        <div *ngIf="error" class="error-state">
+          <div class="error-icon">
+            <i class="bi bi-exclamation-circle"></i>
+          </div>
+          <h3>Une erreur est survenue</h3>
+          <p>{{ error }}</p>
+          <button (click)="loadEmergencies()">Réessayer</button>
+        </div>
+        
+        <!-- Aucun résultat -->
+        <div *ngIf="!loading && !error && filteredEmergencies.length === 0" class="empty-state">
+          <div class="empty-icon">
+            <i class="bi bi-search"></i>
+          </div>
+          <h3>Aucune urgence trouvée</h3>
+          <p>Aucune urgence ne correspond à vos critères de recherche.</p>
+          <button (click)="resetFilters()">Réinitialiser les filtres</button>
+        </div>
+        
+        <!-- Grille des urgences -->
+        <div *ngIf="!loading && !error && filteredEmergencies.length > 0" class="emergencies-grid">
+          <div class="emergency-card" *ngFor="let emergency of paginatedEmergencies" (click)="showEmergencyDetails(emergency)">
+            <div class="card-header" [class]="getBloodTypeClass(emergency.bloodType, true)">
+              <div class="blood-type">
+                {{ emergency.bloodType }}
+              </div>
+              <div class="time-ago">{{ getTimeAgo(emergency.date) }}</div>
+            </div>
+            
+            <div class="card-body">
+              <h3 class="emergency-title">{{ emergency.title }}</h3>
+              <div class="emergency-hospital">
+                <i class="bi bi-hospital"></i>
+                <span>{{ emergency.hospital }}</span>
+              </div>
+              <p class="emergency-details">
+                {{ emergency.details?.substring(0, 100) }}{{ emergency.details && emergency.details.length > 100 ? '...' : '' }}
+              </p>
+            </div>
+            
+            <div class="card-footer">
+              <button class="btn-details">
+                <i class="bi bi-info-circle"></i> Voir les détails
+              </button>
+              <div class="has-audio" *ngIf="emergency.wolofAudioDetails">
+                <i class="bi bi-volume-up"></i>
+                <span>Audio en Wolof</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Pagination -->
+        <div *ngIf="!loading && !error && totalPages > 1" class="pagination">
+          <button 
+            [disabled]="currentPage === 1"
+            (click)="changePage(currentPage - 1)"
+            class="page-arrow"
+          >
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          
+          <div class="page-numbers">
+            <button 
+              *ngFor="let page of [].constructor(totalPages); let i = index"
+              [class.active]="currentPage === i + 1"
+              (click)="changePage(i + 1)"
+            >
+              {{ i + 1 }}
+            </button>
+          </div>
+          
+          <button 
+            [disabled]="currentPage === totalPages"
+            (click)="changePage(currentPage + 1)"
+            class="page-arrow"
+          >
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+  
+    <!-- Section d'appel à l'action -->
+    <section class="cta-section">
+      <div class="container">
+        <div class="cta-content">
+          <h2>Prêt à faire la différence ?</h2>
+          <p>Rejoignez notre communauté de donneurs et aidez à sauver des vies. C'est simple, rapide et ça peut tout changer.</p>
+          <div class="cta-buttons">
+            <a routerLink="/register" class="btn-primary">
+              <i class="bi bi-person-plus"></i> S'inscrire maintenant
+            </a>
+            <a routerLink="/a-propos" class="btn-secondary">
+              <i class="bi bi-info-circle"></i> En savoir plus
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  
+    <!-- Modal de détails -->
+    <div class="modal-overlay" *ngIf="showDetails" [class.closing]="!showDetails" (click)="closeDetails()">
+      <div class="modal-container" (click)="$event.stopPropagation()" *ngIf="selectedEmergency">
+        <div class="modal-header" [class]="getBloodTypeClass(selectedEmergency.bloodType, true)">
+          <div class="modal-blood-type">
+            {{ selectedEmergency.bloodType }}
+          </div>
+          <button class="close-btn" (click)="closeDetails()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        
+        <div class="modal-body">
+          <h2 class="emergency-title">{{ selectedEmergency.title }}</h2>
+          
+          <div class="detail-row">
+            <div class="detail-label">
+              <i class="bi bi-calendar-event"></i>
+              <span>Date:</span>
+            </div>
+            <div class="detail-value">{{ formatDate(selectedEmergency.date) }}</div>
+          </div>
+          
+          <div class="detail-row">
+            <div class="detail-label">
+              <i class="bi bi-hospital"></i>
+              <span>Hôpital:</span>
+            </div>
+            <div class="detail-value">{{ selectedEmergency.hospital }}</div>
+          </div>
+          
+          <div class="detail-section">
+            <h3>Détails de l'urgence</h3>
+            <p>{{ selectedEmergency.details }}</p>
+          </div>
+          
+          <div class="detail-section" *ngIf="selectedEmergency.wolofAudioDetails">
+            <h3>Explication en Wolof</h3>
+            <div class="audio-player">
+              <audio controls>
+                <source [src]="selectedEmergency.wolofAudioDetails" type="audio/mpeg">
+                Votre navigateur ne supporte pas l'élément audio.
+              </audio>
+            </div>
+          </div>
+          
+          <div class="compatibility-check">
+            <h3>Compatibilité des groupes sanguins</h3>
+            <p>Vérifiez si votre groupe sanguin est compatible avec cette urgence:</p>
+            
+            <div class="blood-compatibility">
+              <div class="blood-type-btn" 
+                   *ngFor="let type of bloodTypes"
+                   [class.compatible]="isCompatible(type, selectedEmergency.bloodType)"
+                   [class]="getBloodTypeClass(type)"
+              >
+                {{ type }}
+              </div>
+            </div>
+            <p class="compatibility-note">
+              <i class="bi bi-info-circle"></i> 
+              Les personnes du groupe O sont des donneurs universels et peuvent aider dans la plupart des urgences.
+            </p>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <a routerLink="/register" class="btn-primary">
+            <i class="bi bi-person-plus"></i> Devenir donneur
+          </a>
+          <a routerLink="/centres" class="btn-secondary">
+            <i class="bi bi-geo-alt"></i> Trouver un centre
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>

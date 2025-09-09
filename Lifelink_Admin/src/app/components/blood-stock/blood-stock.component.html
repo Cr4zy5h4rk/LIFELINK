@@ -1,0 +1,51 @@
+<div class="stock-container">
+    <div class="header">
+      <h1>Stocks de Sang par Région au Sénégal</h1>
+      <button (click)="refreshData()" class="refresh-button">
+        <i class="fas fa-sync-alt"></i> Actualiser
+      </button>
+    </div>
+  
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Chargement des données...</p>
+    </div>
+  
+    <div *ngIf="error" class="error-message">
+      <p>{{ error }}</p>
+      <button (click)="refreshData()">Réessayer</button>
+    </div>
+  
+    <div *ngIf="!loading && !error" class="region-grid">
+      <div *ngFor="let region of regionStocks" class="region-card">
+        <div class="region-header">
+          <h2>{{ region.name }}</h2>
+        </div>
+        <div class="blood-stocks">
+          <div *ngFor="let stock of region.bloodStocks" class="blood-type">
+            <div class="blood-label">{{ stock.type }}</div>
+            <div class="stock-bar-container">
+              <div class="stock-bar" [style.width.%]="stock.level" [ngClass]="getStockLevelClass(stock.level)"></div>
+            </div>
+            <div class="stock-percentage">{{ stock.level }}%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="legend">
+      <h3>Légende</h3>
+      <div class="legend-item">
+        <div class="legend-color critical"></div>
+        <span>Critique (< 30%)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color warning"></div>
+        <span>Attention (30% - 60%)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color good"></div>
+        <span>Bon (> 60%)</span>
+      </div>
+    </div>
+  </div>

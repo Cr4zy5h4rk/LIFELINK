@@ -1,0 +1,144 @@
+<!-- dashboard.component.html -->
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <div class="logo-container">
+      <img src="../../../../assets/img/lfllogo.png" alt="LIFELINK Logo" class="logo">
+      <h1>LIFELINK</h1>
+    </div>
+    <div class="header-subtitle">
+      <h2>Plateforme de Gestion de Dons de Sang</h2>
+    </div>
+    <div class="date-info">
+      {{ currentDate | date: 'dd MMMM yyyy' }}
+    </div>
+  </header>
+
+  <div class="dashboard-stats">
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-tint"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{ totalDonations }}</h3>
+        <p>Dons totaux</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-user-plus"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{ newDonors }}</h3>
+        <p>Nouveaux donneurs</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-calendar-check"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{ donationsThisMonth }}</h3>
+        <p>Dons ce mois</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">
+        <i class="fas fa-hospital"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{ bloodBanksCount }}</h3>
+        <p>Banques de sang</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-row">
+    <div class="dashboard-card blood-types">
+      <h3>Distribution par Groupe Sanguin</h3>
+      <div class="chart-container">
+        <canvas #bloodTypeChart></canvas>
+      </div>
+    </div>
+    <div class="dashboard-card gender-distribution">
+      <h3>Distribution par Genre</h3>
+      <div class="chart-container">
+        <canvas #genderChart></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-row">
+    <div class="dashboard-card donations-trend">
+      <h3>Tendance des Dons (6 derniers mois)</h3>
+      <div class="chart-container">
+        <canvas #donationTrendChart></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-row">
+    <div class="dashboard-card map-container">
+      <h3>Répartition Géographique des Dons</h3>
+      <app-senegal-map></app-senegal-map>
+    </div>
+  </div>
+
+  <div class="dashboard-row">
+    <div class="dashboard-card age-groups">
+      <h3>Distribution par Tranche d'Âge</h3>
+      <div class="chart-container">
+        <canvas #ageGroupChart></canvas>
+      </div>
+    </div>
+    <div class="dashboard-card inventory-status">
+      <h3>État des Stocks par Groupe Sanguin</h3>
+      <div class="inventory-grid">
+        @for (stock of bloodInventory; track stock.bloodType) {
+        <div class="inventory-item" [ngClass]="getInventoryStatusClass(stock.level)">
+          <div class="blood-type">{{ stock.bloodType }}</div>
+          <div class="blood-level-indicator">
+            <div class="blood-level" [style.height.%]="stock.level"></div>
+          </div>
+          <div class="blood-status">{{ stock.status }}</div>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-row">
+    <div class="dashboard-card upcoming-events">
+      <h3>Prochaines Collectes</h3>
+      <div class="events-list">
+        @for (event of upcomingEvents; track event.id) {
+        <div class="event-item">
+          <div class="event-date">
+            <span class="day">{{ event.date | date: 'dd' }}</span>
+            <span class="month">{{ event.date | date: 'MMM' }}</span>
+          </div>
+          <div class="event-details">
+            <h4>{{ event.name }}</h4>
+            <p><i class="fas fa-map-marker-alt"></i> {{ event.location }}</p>
+            <p><i class="fas fa-clock"></i> {{ event.time }}</p>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+    <div class="dashboard-card urgent-needs">
+      <h3>Besoins Urgents</h3>
+      <div class="urgent-list">
+        @for (need of urgentNeeds; track need.bloodType) {
+        <div class="urgent-item">
+          <div class="blood-type-badge">{{ need.bloodType }}</div>
+          <div class="urgent-details">
+            <h4>{{ need.hospital }}</h4>
+            <p>{{ need.quantity }} unités requises</p>
+            <p>Avant le {{ need.deadline | date: 'dd/MM/yyyy' }}</p>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

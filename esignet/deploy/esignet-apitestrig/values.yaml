@@ -1,0 +1,32 @@
+modules:
+  esignet:
+    enabled: true
+    image:
+      repository: mosipid/apitest-esignet
+      tag: 1.5.1
+      pullPolicy: Always
+  prereg:
+    enabled: false
+  masterdata:
+    enabled: false
+  idrepo:
+    enabled: false
+  partner:
+    enabled: false
+  pms:
+    enabled: false
+    image:
+  resident:
+    enabled: false
+  auth:
+    enabled: false
+  mimoto:
+    enabled: false
+
+resources:
+  limits:
+    cpu: 300m
+    memory: 500Mi
+  requests:
+    cpu: 300m
+    memory: 500Mi

@@ -1,0 +1,539 @@
+    <!-- En-tête du gestionnaire -->
+    <div class="page-header">
+        <div class="header-content">
+          <h1><i class="fas fa-share-alt"></i> Gestion des demandes de partage d'information</h1>
+          <p>Gérez les demandes d'accès à l'information des donneurs via identité numérique</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-create" (click)="showCreateModal()">
+            <i class="fas fa-plus"></i> Nouvelle demande
+          </button>
+        </div>
+      </div>
+  
+      <!-- Cartes de statistiques -->
+      <div class="stats-cards">
+        <div class="stat-card">
+          <div class="stat-icon pending">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.pending }}</div>
+            <div class="stat-label">En attente</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon accepted">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.accepted }}</div>
+            <div class="stat-label">Acceptées</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon rejected">
+            <i class="fas fa-times-circle"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.rejected }}</div>
+            <div class="stat-label">Rejetées</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon total">
+            <i class="fas fa-list"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-label">Total</div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Filtres -->
+      <div class="filters-container">
+        <div class="filters">
+          <div class="filter-item">
+            <label>Statut</label>
+            <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+              <option value="all">Tous</option>
+              <option value="pending">En attente</option>
+              <option value="accepted">Acceptées</option>
+              <option value="rejected">Rejetées</option>
+            </select>
+          </div>
+          
+          <div class="filter-item">
+            <label>Type</label>
+            <select [(ngModel)]="selectedType" (change)="applyFilters()">
+              <option value="all">Tous</option>
+              <option value="campaign">Campagnes</option>
+              <option value="center">Centres</option>
+            </select>
+          </div>
+          
+          <div class="filter-item search-box">
+            <label>Rechercher</label>
+            <div class="search-input">
+              <input type="text" [(ngModel)]="searchTerm" placeholder="Numéro de téléphone..." (keyup.enter)="applyFilters()">
+              <button class="search-btn" (click)="applyFilters()">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="view-toggle">
+          <button [class.active]="viewMode === 'card'" (click)="viewMode = 'card'">
+            <i class="fas fa-th-large"></i>
+          </button>
+          <button [class.active]="viewMode === 'list'" (click)="viewMode = 'list'">
+            <i class="fas fa-list"></i>
+          </button>
+        </div>
+      </div>
+  
+      <!-- Loading indicator -->
+      <div class="loading-container" *ngIf="isLoading">
+        <div class="loading-spinner"></div>
+        <p>Chargement des demandes...</p>
+      </div>
+  
+      <!-- Message vide -->
+      <div class="empty-state" *ngIf="!isLoading && filteredRequests.length === 0">
+        <div class="empty-icon">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <h3>Aucune demande trouvée</h3>
+        <p>Il n'y a aucune demande correspondant à vos critères de recherche.</p>
+        <button class="btn-secondary" (click)="resetFilters()">Réinitialiser les filtres</button>
+      </div>
+  
+      <!-- Vue en cartes -->
+      <div class="requests-grid" *ngIf="!isLoading && filteredRequests.length > 0 && viewMode === 'card'">
+        <div class="request-card" *ngFor="let request of filteredRequests" [ngClass]="getStatusClass(request)">
+          <div class="card-header">
+            <div class="card-title">
+              <i class="fas fa-mobile-alt"></i> {{ request.phoneNumber }}
+            </div>
+            <div class="request-status">
+              <span [ngClass]="getStatusBadgeClass(request)">
+                {{ getStatusLabel(request) }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="card-body">
+            <div class="info-row">
+              <div class="info-label">Type:</div>
+              <div class="info-value">{{ getRequestType(request) }}</div>
+            </div>
+            
+            <div class="info-row">
+              <div class="info-label">Demandé le:</div>
+              <div class="info-value">{{ formatDate(request.requestDate) }}</div>
+            </div>
+            
+            <div class="info-row" *ngIf="request.acceptanceDate">
+              <div class="info-label">Traité le:</div>
+              <div class="info-value">{{ formatDate(request.acceptanceDate) }}</div>
+            </div>
+            
+            <div class="info-row" *ngIf="request.bloodDonationCampaign">
+              <div class="info-label">Campagne:</div>
+              <div class="info-value">{{ getCampaignName(request.bloodDonationCampaign) }}</div>
+            </div>
+            
+            <div class="info-row" *ngIf="request.donationCenter">
+              <div class="info-label">Centre:</div>
+              <div class="info-value">{{ getCenterName(request.donationCenter) }}</div>
+            </div>
+          </div>
+          
+          <div class="card-actions">
+            <div class="action-buttons" *ngIf="!request.sharedInfoSelection">
+              <button class="btn-accept" (click)="handleAccept(request)">
+                <i class="fas fa-check"></i> Select
+              </button>
+              <button class="btn-reject" (click)="handleReject(request)">
+                <i class="fas fa-times"></i> Annuler
+              </button>
+            </div>
+            <button class="btn-view" *ngIf="request.accepted === true" (click)="viewSharedInfo(request)">
+              <i class="fas fa-eye"></i> Voir informations
+            </button>
+            <button class="btn-delete" (click)="confirmDelete(request)">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Vue en liste -->
+      <div class="requests-table" *ngIf="!isLoading && filteredRequests.length > 0 && viewMode === 'list'">
+        <table>
+          <thead>
+            <tr>
+              <th>Numéro de téléphone</th>
+              <th>Type</th>
+              <th>Détails</th>
+              <th>Date demande</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let request of filteredRequests" [ngClass]="getStatusClass(request)">
+              <td>{{ request.phoneNumber }}</td>
+              <td>{{ getRequestType(request) }}</td>
+              <td>
+                <span *ngIf="request.bloodDonationCampaign">
+                  Campagne: {{ getCampaignName(request.bloodDonationCampaign) }}
+                </span>
+                <span *ngIf="request.donationCenter">
+                  Centre: {{ getCenterName(request.donationCenter) }}
+                </span>
+              </td>
+              <td>{{ formatDate(request.requestDate) }}</td>
+              <td>
+                <span [ngClass]="getStatusBadgeClass(request)">
+                  {{ getStatusLabel(request) }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <ng-container *ngIf="!request.sharedInfoSelection">
+                  <button class="btn-icon accept" (click)="handleAccept(request)" title="Select">
+                    <i class="fas fa-check"></i>
+                  </button>
+                  <button class="btn-icon reject" (click)="handleReject(request)" title="Annuler">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </ng-container>
+                <button class="btn-icon view" *ngIf="request.accepted === true" (click)="viewSharedInfo(request)" title="Voir informations">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn-icon delete" (click)="confirmDelete(request)" title="Supprimer">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Modal de création avec sélection d'informations -->
+<div class="modal-overlay" *ngIf="showModal" (click)="hideModal($event)">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2>Nouvelle demande de partage d'informations</h2>
+      <button class="close-btn" (click)="hideModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <form [formGroup]="requestForm" (ngSubmit)="createRequest()">
+      <div class="modal-body">
+        <!-- Section des informations de base -->
+        <div class="form-section">
+          <h3>Informations du donneur</h3>
+          <div class="form-group">
+            <label for="phoneNumber">Numéro de téléphone <span class="required">*</span></label>
+            <input type="tel" id="phoneNumber" formControlName="phoneNumber" placeholder="Ex: +221 70 123 45 67">
+            <div class="error-message" *ngIf="requestForm.get('phoneNumber')?.invalid && requestForm.get('phoneNumber')?.touched">
+              Numéro de téléphone invalide
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="campaignId">Campagne de don</label>
+            <select id="campaignId" formControlName="campaignId">
+              <option value="">Sélectionnez une campagne (optionnel)</option>
+              <option *ngFor="let campaign of campaigns" [value]="campaign.id">
+                {{ extractTitle(campaign.schedule) }}
+              </option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="centerId">Centre de don</label>
+            <select id="centerId" formControlName="centerId">
+              <option value="">Sélectionnez un centre (optionnel)</option>
+              <option *ngFor="let center of centers" [value]="center.id">{{ center.hospital }}</option>
+            </select>
+          </div>
+          
+          <!-- Afficher un message d'erreur si aucun des deux n'est sélectionné -->
+          <div class="error-message" *ngIf="requestForm.errors?.['atLeastOneRequired'] && (requestForm.touched || requestForm.dirty)">
+            Veuillez sélectionner au moins une campagne ou un centre de don
+          </div>
+        </div>
+        
+        <!-- Section des sélections d'informations -->
+        <div class="form-section" formGroupName="selectionInfo">
+          <h3>Informations à demander</h3>
+          <div class="info-message">
+            <i class="fas fa-info-circle"></i>
+            <span>Veuillez sélectionner les informations que vous souhaitez demander au donneur</span>
+          </div>
+          
+          <!-- Informations personnelles -->
+          <div class="section-container">
+            <div class="section-header">
+              <h3>Informations personnelles</h3>
+              <div class="toggle-all">
+                <input type="checkbox" id="togglePersonal" [checked]="isAllPersonalInfoChecked()" (change)="toggleAllPersonalInfo($event)" (click)="$event.stopPropagation()">
+                <label for="togglePersonal">Tout sélectionner</label>
+              </div>
+            </div>
+            
+            <div class="checkbox-group">
+              <div class="checkbox-item" (click)="$event.stopPropagation()">
+                <input type="checkbox" id="shareDateNaissance" formControlName="shareDateNaissance">
+                <label for="shareDateNaissance">Date de naissance</label>
+              </div>
+              
+              <div class="checkbox-item" (click)="$event.stopPropagation()">
+                <input type="checkbox" id="shareAddress" formControlName="shareAddress">
+                <label for="shareAddress">Adresse</label>
+              </div>
+              
+              <div class="checkbox-item" (click)="$event.stopPropagation()">
+                <input type="checkbox" id="shareEmail" formControlName="shareEmail">
+                <label for="shareEmail">Email</label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Informations médicales -->
+          <div class="section-container">
+            <div class="section-header">
+              <h3>Carnet médical</h3>
+              <div class="toggle-all" (click)="$event.stopPropagation()">
+                <input type="checkbox" id="toggleMedical" [checked]="isAllMedicalInfoChecked()" (change)="toggleAllMedicalInfo($event)">
+                <label for="toggleMedical">Tout sélectionner</label>
+              </div>
+            </div>
+            
+            <div class="checkbox-group two-columns">
+              <div class="column">
+                <div class="checkbox-item" (click)="$event.stopPropagation()">
+                  <input type="checkbox" id="shareInfosMedicales" formControlName="shareInfosMedicales">
+                  <label for="shareInfosMedicales">Informations médicales de base</label>
+                </div>
+                
+                <div class="checkbox-item" (click)="$event.stopPropagation()">
+                  <input type="checkbox" id="shareVaccinations" formControlName="shareVaccinations">
+                  <label for="shareVaccinations">Vaccinations</label>
+                </div>
+                
+                <div class="checkbox-item" (click)="$event.stopPropagation()">
+                  <input type="checkbox" id="shareConsultations" formControlName="shareConsultations">
+                  <label for="shareConsultations">Historique des consultations</label>
+                </div>
+                
+                <div class="checkbox-item" (click)="$event.stopPropagation()">
+                  <input type="checkbox" id="shareAppareilsMedicaux" formControlName="shareAppareilsMedicaux">
+                  <label for="shareAppareilsMedicaux">Appareils médicaux</label>
+                </div>
+              </div>
+              
+              <div class="column">
+                <div class="checkbox-item" (click)="$event.stopPropagation()">
+                  <input type="checkbox" id="shareDonSanguin" formControlName="shareDonSanguin">
+                  <label for="shareDonSanguin">Historique des dons de sang</label>
+                </div>
+                
+                <div class="checkbox-item" (click)="$event.stopPropagation()">
+                  <input type="checkbox" id="shareAlertes" formControlName="shareAlertes">
+                  <label for="shareAlertes">Alertes médicales</label>
+                </div>
+                
+                <div class="checkbox-item" (click)="$event.stopPropagation()">
+                  <input type="checkbox" id="shareContactsUrgence" formControlName="shareContactsUrgence">
+                  <label for="shareContactsUrgence">Contacts d'urgence</label>
+                </div>
+                
+                <div class="checkbox-item" (click)="$event.stopPropagation()">
+                  <input type="checkbox" id="shareAssurance" formControlName="shareAssurance">
+                  <label for="shareAssurance">Informations d'assurance</label>
+                </div>
+                
+                <div class="checkbox-item" (click)="$event.stopPropagation()">
+                  <input type="checkbox" id="shareModeDeVie" formControlName="shareModeDeVie">
+                  <label for="shareModeDeVie">Mode de vie</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="hideModal()">Annuler</button>
+        <button type="submit" class="btn-submit" [disabled]="requestForm.invalid || isSubmitting">
+          <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting"></i>
+          <span *ngIf="!isSubmitting">Créer la demande</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+  
+      <!-- Modal de confirmation de suppression -->
+      <div class="modal-overlay" *ngIf="showDeleteConfirm">
+        <div class="modal-container delete-confirm">
+          <div class="modal-header">
+            <h2>Confirmer la suppression</h2>
+            <button class="close-btn" (click)="cancelDelete()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          
+          <div class="modal-body">
+            <div class="delete-icon">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <p>Êtes-vous sûr de vouloir supprimer cette demande de partage d'informations ?</p>
+            <p class="warning-text">Cette action est irréversible et supprimera définitivement cette demande.</p>
+          </div>
+          
+          <div class="modal-footer">
+            <button type="button" class="btn-cancel" (click)="cancelDelete()">Annuler</button>
+            <button type="button" class="btn-delete-confirm" (click)="handleDelete()" [disabled]="isDeleting">
+              <i class="fas fa-spinner fa-spin" *ngIf="isDeleting"></i>
+              <span *ngIf="!isDeleting">Supprimer</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+<!-- Modal pour afficher les informations partagées -->
+<div class="modal-overlay" *ngIf="showInfoModal" (click)="$event.target === $event.currentTarget && hideInfoModal()">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2>Informations partagées par le donneur</h2>
+      <button class="close-btn" (click)="hideInfoModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body" *ngIf="currentRequest && sharedSelections">
+      <div class="info-donor-header">
+        <div class="donor-icon">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="donor-details">
+          <h3>{{ currentRequest.phoneNumber }}</h3>
+          <p>
+            <span *ngIf="currentRequest.bloodDonationCampaign">Campagne: {{ getCampaignName(currentRequest.bloodDonationCampaign) }}</span>
+            <span *ngIf="currentRequest.donationCenter">Centre: {{ getCenterName(currentRequest.donationCenter) }}</span>
+          </p>
+          <p class="shared-date">Informations partagées le {{ formatDate(currentRequest.acceptanceDate) }}</p>
+        </div>
+      </div>
+      
+      <div class="no-info" *ngIf="!hasSharedInfo()">
+        <i class="fas fa-info-circle"></i>
+        <p>Aucune information n'a été partagée par ce donneur.</p>
+      </div>
+      
+      <!-- Informations personnelles -->
+      <div class="shared-section" *ngIf="hasSharedPersonalInfo()">
+        <h4>Informations personnelles</h4>
+        
+        <div class="shared-info-list">
+          <div class="shared-info-item" *ngIf="sharedSelections.shareDateNaissance">
+            <div class="info-icon"><i class="fas fa-calendar-alt"></i></div>
+            <div class="info-content">
+              <div class="info-label">Date de naissance</div>
+              <div class="info-value">{{ donorInfo?.birthDate ? formatDate(donorInfo.birthDate) : 'Non disponible' }}</div>
+            </div>
+          </div>
+          
+          <div class="shared-info-item" *ngIf="sharedSelections.shareAddress">
+            <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <div class="info-content">
+              <div class="info-label">Adresse</div>
+              <div class="info-value">{{ donorInfo?.address ? formatAddress(donorInfo.address) : 'Non disponible' }}</div>
+            </div>
+          </div>
+          
+          <div class="shared-info-item" *ngIf="sharedSelections.shareEmail">
+            <div class="info-icon"><i class="fas fa-envelope"></i></div>
+            <div class="info-content">
+              <div class="info-label">Email</div>
+              <div class="info-value">{{ donorInfo?.email || 'Non disponible' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Informations médicales -->
+      <div class="shared-section" *ngIf="hasSharedMedicalInfo()">
+        <h4>Informations médicales</h4>
+        
+        <div class="shared-info-list">
+          <!-- Infos médicales de base -->
+          <div class="shared-info-item" *ngIf="sharedSelections.shareInfosMedicales">
+            <div class="info-icon"><i class="fas fa-heartbeat"></i></div>
+            <div class="info-content">
+              <div class="info-label">Informations médicales de base</div>
+              <div class="info-value" *ngIf="medicalData?.infosMedicales">
+                <div class="medical-data-item">
+                  <strong>Groupe sanguin:</strong> {{ medicalData.infosMedicales.groupeSanguin || 'Non spécifié' }}
+                </div>
+                
+                <div class="medical-data-item" *ngIf="medicalData.infosMedicales.allergies?.length > 0">
+                  <strong>Allergies:</strong>
+                  <span class="tag-list">
+                    <span class="tag" *ngFor="let allergie of medicalData.infosMedicales.allergies">{{ allergie }}</span>
+                  </span>
+                </div>
+                
+                <div class="medical-data-item" *ngIf="medicalData.infosMedicales.antecedentsMedicaux?.length > 0">
+                  <strong>Antécédents médicaux:</strong>
+                  <ul class="medical-list">
+                    <li *ngFor="let antecedent of medicalData.infosMedicales.antecedentsMedicaux">{{ antecedent }}</li>
+                  </ul>
+                </div>
+                
+                <div class="medical-data-item" *ngIf="medicalData.infosMedicales.medicamentsActuels?.length > 0">
+                  <strong>Médicaments actuels:</strong>
+                  <span class="tag-list">
+                    <span class="tag" *ngFor="let medicament of medicalData.infosMedicales.medicamentsActuels">{{ medicament }}</span>
+                  </span>
+                </div>
+                
+                <div class="medical-data-item" *ngIf="medicalData.infosMedicales.conditionsChronic?.length > 0">
+                  <strong>Conditions chroniques:</strong>
+                  <ul class="medical-list">
+                    <li *ngFor="let condition of medicalData.infosMedicales.conditionsChronic">{{ condition }}</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="info-value" *ngIf="!medicalData?.infosMedicales">
+                Aucune information médicale de base disponible
+              </div>
+            </div>
+          </div>
+          
+          <!-- Autres sections médicales selon les permissions... -->
+          <!-- Ajouter des sections similaires pour chaque type d'information médicale -->
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button type="button" class="btn-ok" (click)="hideInfoModal()">Fermer</button>
+    </div>
+  </div>
+</div>
+      

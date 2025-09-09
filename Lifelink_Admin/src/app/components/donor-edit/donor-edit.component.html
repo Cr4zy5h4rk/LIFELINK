@@ -1,0 +1,321 @@
+<div class="container-fluid">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="mb-0">{{ isEditMode ? 'Modifier' : 'Créer' }} un donneur</h2>
+      </div>
+      
+      <!-- Chargement -->
+      <div *ngIf="loading" class="card-body text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="mt-3">Chargement des données du donneur...</p>
+      </div>
+      
+      <!-- Erreur -->
+      <div *ngIf="error" class="alert alert-danger m-3" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+      </div>
+      
+      <!-- Formulaire -->
+      <div *ngIf="!loading" class="card-body">
+        <form [formGroup]="donorForm" (ngSubmit)="onSubmit()">
+          
+          <!-- Informations personnelles -->
+          <h4 class="section-title mb-3">Informations personnelles</h4>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label for="firstName" class="form-label">Prénom <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="firstName" 
+                formControlName="firstName"
+                [ngClass]="{'is-invalid': hasError('firstName')}"
+              >
+              <div *ngIf="hasError('firstName')" class="invalid-feedback">
+                {{ getErrorMessage('firstName') }}
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <label for="lastName" class="form-label">Nom <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="lastName" 
+                formControlName="lastName"
+                [ngClass]="{'is-invalid': hasError('lastName')}"
+              >
+              <div *ngIf="hasError('lastName')" class="invalid-feedback">
+                {{ getErrorMessage('lastName') }}
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+              <input 
+                type="email" 
+                class="form-control" 
+                id="email" 
+                formControlName="email"
+                [ngClass]="{'is-invalid': hasError('email')}"
+              >
+              <div *ngIf="hasError('email')" class="invalid-feedback">
+                {{ getErrorMessage('email') }}
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <label for="phoneNumber" class="form-label">Téléphone <span class="text-danger">*</span></label>
+              <input 
+                type="tel" 
+                class="form-control" 
+                id="phoneNumber" 
+                formControlName="phoneNumber"
+                [ngClass]="{'is-invalid': hasError('phoneNumber')}"
+                placeholder="Ex: +221 77 123 4567"
+              >
+              <div *ngIf="hasError('phoneNumber')" class="invalid-feedback">
+                {{ getErrorMessage('phoneNumber') }}
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <label for="gender" class="form-label">Genre <span class="text-danger">*</span></label>
+              <select 
+                class="form-select" 
+                id="gender" 
+                formControlName="gender"
+                [ngClass]="{'is-invalid': hasError('gender')}"
+              >
+                <option [ngValue]="null">Sélectionner un genre</option>
+                <option *ngFor="let gender of genders" [ngValue]="gender">
+                  {{ gender === 'MALE' ? 'Homme' : 'Femme' }}
+                </option>
+              </select>
+              <div *ngIf="hasError('gender')" class="invalid-feedback">
+                {{ getErrorMessage('gender') }}
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <label for="birthDate" class="form-label">Date de naissance <span class="text-danger">*</span></label>
+              <input 
+                type="date" 
+                class="form-control" 
+                id="birthDate" 
+                formControlName="birthDate"
+                [ngClass]="{'is-invalid': hasError('birthDate')}"
+              >
+              <div *ngIf="hasError('birthDate')" class="invalid-feedback">
+                {{ getErrorMessage('birthDate') }}
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <label for="lastDonationDate" class="form-label">Dernier don</label>
+              <input 
+                type="date" 
+                class="form-control" 
+                id="lastDonationDate" 
+                formControlName="lastDonationDate"
+                [ngClass]="{'is-invalid': hasError('lastDonationDate')}"
+              >
+            </div>
+          </div>
+          
+          <!-- Mot de passe (uniquement pour la création) -->
+          <div class="row g-3 mb-4" *ngIf="!isEditMode">
+            <div class="col-md-6">
+              <label for="password" class="form-label">Mot de passe <span class="text-danger">*</span></label>
+              <input 
+                type="password" 
+                class="form-control" 
+                id="password" 
+                formControlName="password"
+                [ngClass]="{'is-invalid': hasError('password')}"
+              >
+              <div *ngIf="hasError('password')" class="invalid-feedback">
+                {{ getErrorMessage('password') }}
+              </div>
+            </div>
+          </div>
+          
+          <!-- Informations de santé -->
+          <h4 class="section-title mb-3">Informations de santé</h4>
+          <div class="row g-3 mb-4">
+            <div class="col-md-3">
+              <label for="weight" class="form-label">Poids (kg)</label>
+              <input 
+                type="number" 
+                class="form-control" 
+                id="weight" 
+                formControlName="weight"
+                [ngClass]="{'is-invalid': hasError('weight')}"
+                min="20" 
+                max="200"
+                step="0.1"
+              >
+              <div *ngIf="hasError('weight')" class="invalid-feedback">
+                {{ getErrorMessage('weight') }}
+              </div>
+            </div>
+            
+            <div class="col-md-3">
+              <label for="size" class="form-label">Taille (cm)</label>
+              <input 
+                type="number" 
+                class="form-control" 
+                id="size" 
+                formControlName="size"
+                [ngClass]="{'is-invalid': hasError('size')}"
+                min="100" 
+                max="250"
+                step="0.1"
+              >
+              <div *ngIf="hasError('size')" class="invalid-feedback">
+                {{ getErrorMessage('size') }}
+              </div>
+            </div>
+            
+            <div class="col-md-3">
+              <label for="bloodType" class="form-label">Groupe sanguin</label>
+              <select 
+                class="form-select" 
+                id="bloodType" 
+                formControlName="bloodType"
+                [ngClass]="{'is-invalid': hasError('bloodType')}"
+              >
+                <option [ngValue]="null">Sélectionner un groupe</option>
+                <option *ngFor="let type of bloodTypes" [ngValue]="type">{{ type }}</option>
+              </select>
+            </div>
+            
+            <div class="col-md-3">
+              <label for="resusType" class="form-label">Rhésus</label>
+              <select 
+                class="form-select" 
+                id="resusType" 
+                formControlName="resusType"
+                [ngClass]="{'is-invalid': hasError('resusType')}"
+              >
+                <option [ngValue]="null">Sélectionner</option>
+                <option *ngFor="let type of resusTypes" [ngValue]="type">
+                  {{ type === 'POSITIVE' ? 'Positif (+)' : 'Négatif (-)' }}
+                </option>
+              </select>
+            </div>
+            
+            <div class="col-md-3">
+              <label for="fidelityPoints" class="form-label">Points de fidélité</label>
+              <input 
+                type="number" 
+                class="form-control" 
+                id="fidelityPoints" 
+                formControlName="fidelityPoints"
+                min="0"
+              >
+            </div>
+            
+            <div class="col-md-12">
+              <div class="form-check">
+                <input 
+                  class="form-check-input" 
+                  type="checkbox" 
+                  id="receiveOtpForBloodRequest" 
+                  formControlName="receiveOtpForBloodRequest"
+                >
+                <label class="form-check-label" for="receiveOtpForBloodRequest">
+                  Recevoir des notifications pour les demandes de sang urgentes
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Adresse -->
+          <h4 class="section-title mb-3">Adresse</h4>
+          <div class="row g-3 mb-4" formGroupName="address">
+            <div class="col-md-6">
+              <label for="street" class="form-label">Rue</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="street" 
+                formControlName="street"
+              >
+            </div>
+            
+            <div class="col-md-6">
+              <label for="city" class="form-label">Ville</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="city" 
+                formControlName="city"
+              >
+            </div>
+            
+            <div class="col-md-3">
+              <label for="postalCode" class="form-label">Code postal</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="postalCode" 
+                formControlName="postalCode"
+              >
+            </div>
+            
+            <div class="col-md-3">
+              <label for="country" class="form-label">Pays</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="country" 
+                formControlName="country"
+              >
+            </div>
+          </div>
+          
+          <!-- Image de profil -->
+          <h4 class="section-title mb-3">Image de profil</h4>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label for="picture" class="form-label">URL de l'image</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="picture" 
+                formControlName="picture"
+                placeholder="https://exemple.com/image.jpg"
+              >
+              <div class="form-text">Entrez l'URL d'une image de profil (optionnel)</div>
+            </div>
+          </div>
+          
+          <!-- Boutons d'action -->
+          <div class="d-flex justify-content-between mt-4">
+            <button 
+              type="button" 
+              class="btn btn-outline-secondary" 
+              [routerLink]="['/dashboard/donors']"
+              [disabled]="submitting"
+            >
+              <i class="bi bi-arrow-left me-1"></i> Annuler
+            </button>
+            
+            <button 
+              type="submit" 
+              class="btn btn-primary" 
+              [disabled]="submitting"
+            >
+              <span *ngIf="submitting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+              <i *ngIf="!submitting" class="bi" [ngClass]="isEditMode ? 'bi-save' : 'bi-plus-circle'"></i>
+              {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+            </button>
+          </div>
+          
+        </form>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,193 @@
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">Gestion des donneurs</h2>
+      <button class="btn btn-primary" [routerLink]="['/dashboard/donors/new']">
+        <i class="bi bi-plus-circle me-2"></i>Nouveau donneur
+      </button>
+    </div>
+  
+    <!-- Filtres -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Filtres</h5>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input 
+                type="text" 
+                class="form-control" 
+                placeholder="Rechercher par nom, email ou téléphone..." 
+                [(ngModel)]="searchTerm" 
+                (keyup.enter)="applyFilters()"
+              >
+              <button class="btn btn-outline-secondary" type="button" (click)="applyFilters()">Rechercher</button>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <select class="form-select" [(ngModel)]="bloodTypeFilter" (change)="applyFilters()">
+              <option value="">Tous les groupes sanguins</option>
+              <option *ngFor="let type of bloodTypes" [value]="type">{{ type }}</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <select class="form-select" [(ngModel)]="genderFilter" (change)="applyFilters()">
+              <option value="">Tous les genres</option>
+              <option *ngFor="let gender of genders" [value]="gender">{{ translateGender(gender) }}</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-outline-secondary w-100" (click)="resetFilters()">
+              <i class="bi bi-x-circle me-2"></i>Réinitialiser
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Indicateur de chargement -->
+    <div *ngIf="loading" class="text-center my-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-2">Chargement des donneurs...</p>
+    </div>
+  
+    <!-- Message d'erreur -->
+    <div *ngIf="error" class="alert alert-danger" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+      <button class="btn btn-sm btn-outline-danger ms-2" (click)="loadDonors()">Réessayer</button>
+    </div>
+  
+    <!-- Tableau des donneurs -->
+    <div *ngIf="!loading && !error">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title mb-0">Liste des Donneurs ({{ totalItems }})</h5>
+            <div class="d-flex align-items-center">
+              <span class="me-2">Afficher</span>
+              <select class="form-select form-select-sm me-2" style="width: auto;" [(ngModel)]="itemsPerPage" (change)="currentPage = 1; applyFilters()">
+                <option [value]="10">10</option>
+                <option [value]="25">25</option>
+                <option [value]="50">50</option>
+                <option [value]="100">100</option>
+              </select>
+              <span>éléments</span>
+            </div>
+          </div>
+          
+          <div *ngIf="filteredDonors.length === 0" class="alert alert-info">
+            <i class="bi bi-info-circle-fill me-2"></i>Aucun donneur ne correspond aux critères sélectionnés.
+          </div>
+          
+          <div class="table-responsive" *ngIf="filteredDonors.length > 0">
+            <table class="table table-hover table-striped align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col" class="sortable" (click)="sortBy('id')">
+                    ID <i class="bi" [ngClass]="getSortIcon('id')"></i>
+                  </th>
+                  <th scope="col" class="sortable" (click)="sortBy('lastName')">
+                    Nom <i class="bi" [ngClass]="getSortIcon('lastName')"></i>
+                  </th>
+                  <th scope="col" class="sortable" (click)="sortBy('firstName')">
+                    Prénom <i class="bi" [ngClass]="getSortIcon('firstName')"></i>
+                  </th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Téléphone</th>
+                  <th scope="col" class="sortable" (click)="sortBy('bloodType')">
+                    Groupe Sanguin <i class="bi" [ngClass]="getSortIcon('bloodType')"></i>
+                  </th>
+                  <th scope="col" class="sortable" (click)="sortBy('gender')">
+                    Genre <i class="bi" [ngClass]="getSortIcon('gender')"></i>
+                  </th>
+                  <th scope="col" class="sortable" (click)="sortBy('lastDonationDate')">
+                    Dernier Don <i class="bi" [ngClass]="getSortIcon('lastDonationDate')"></i>
+                  </th>
+                  <th scope="col" class="sortable" (click)="sortBy('fidelityPoints')">
+                    Points <i class="bi" [ngClass]="getSortIcon('fidelityPoints')"></i>
+                  </th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let donor of paginatedDonors">
+                  <td>{{ donor.id }}</td>
+                  <td>{{ donor.lastName || 'Non spécifié' }}</td>
+                  <td>{{ donor.firstName || 'Non spécifié' }}</td>
+                  <td>{{ donor.email || 'Non spécifié' }}</td>
+                  <td>{{ donor.phoneNumber || 'Non spécifié' }}</td>
+                  <td>
+                    <span class="badge text-bg-primary">
+                      {{ formatBloodType(donor.bloodType, donor.resusType) }}
+                    </span>
+                  </td>
+                  <td>{{ translateGender(donor.gender) }}</td>
+                  <td>{{ formatDate(donor.lastDonationDate) }}</td>
+                  <td>
+                    <span class="badge text-bg-success">
+                      {{ donor.fidelityPoints || 0 }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-group">
+                      <button 
+                        class="btn btn-sm btn-outline-info" 
+                        [routerLink]="['/dashboard/donors/details', donor.id]" 
+                        title="Voir dossier médical">
+                        <i class="bi bi-clipboard2-pulse"></i>
+                      </button>
+                      <button 
+                        class="btn btn-sm btn-outline-primary" 
+                        [routerLink]="['/dashboard/donors/edit', donor.id]" 
+                        title="Modifier">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button 
+                        class="btn btn-sm btn-outline-danger" 
+                        (click)="deleteDonor(donor.id)"
+                        title="Supprimer">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Pagination -->
+          <nav *ngIf="totalPages > 1" aria-label="Pagination">
+            <ul class="pagination justify-content-center mt-4">
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" href="javascript:void(0)" (click)="changePage(1)">
+                  <i class="bi bi-chevron-double-left"></i>
+                </a>
+              </li>
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)">
+                  <i class="bi bi-chevron-left"></i>
+                </a>
+              </li>
+              
+              <li class="page-item" *ngFor="let page of pages" [class.active]="page === currentPage">
+                <a class="page-link" href="javascript:void(0)" (click)="changePage(page)">{{ page }}</a>
+              </li>
+              
+              <li class="page-item" [class.disabled]="currentPage === totalPages">
+                <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)">
+                  <i class="bi bi-chevron-right"></i>
+                </a>
+              </li>
+              <li class="page-item" [class.disabled]="currentPage === totalPages">
+                <a class="page-link" href="javascript:void(0)" (click)="changePage(totalPages)">
+                  <i class="bi bi-chevron-double-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>

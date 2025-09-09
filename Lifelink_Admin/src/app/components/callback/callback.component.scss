@@ -1,0 +1,324 @@
+// Styles pour la page de callback
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:host {
+  display: block;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+}
+
+.callback-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  position: relative;
+}
+
+// Carte principale
+.card {
+  width: 400px;
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  text-align: center;
+  overflow: hidden;
+  position: relative;
+  
+  @media (max-width: 480px) {
+    width: 90%;
+    padding: 1.5rem;
+  }
+}
+
+// Logo et titre
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  
+  h1 {
+    margin-top: 1rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #e91e63;
+    letter-spacing: 1px;
+  }
+  
+  .logo {
+    width: 120px;
+    height: auto;
+    filter: drop-shadow(0 5px 10px rgba(233, 30, 99, 0.2));
+    animation: pulse 2s infinite;
+  }
+}
+
+// Section de chargement
+.loading-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+// Barre de progression
+.progress-container {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  position: relative;
+  
+  .progress-bar {
+    height: 10px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff758c 0%, #e91e63 100%);
+      transition: width 0.3s ease;
+      border-radius: 10px;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  }
+  
+  .progress-text {
+    position: absolute;
+    right: 0;
+    top: -20px;
+    font-size: 0.8rem;
+    color: #888;
+  }
+}
+
+// Message de statut
+.status-message {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  
+  p {
+    margin: 0;
+    font-size: 1rem;
+    color: #555;
+  }
+  
+  .pulse-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #e91e63;
+    margin-right: 10px;
+    position: relative;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(233, 30, 99, 0.5);
+      border-radius: 50%;
+      animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+  }
+}
+
+// Animation goutte de sang
+.animated-blood-drop {
+  position: relative;
+  width: 60px;
+  height: 80px;
+  margin: 1rem auto;
+  
+  .drop {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+    background-color: #e91e63;
+    border-radius: 50%;
+    animation: drop-fall 2s infinite;
+  }
+  
+  .ripple {
+    position: absolute;
+    bottom: 0;
+    left: 10px;
+    width: 40px;
+    height: 10px;
+    background-color: #e91e63;
+    border-radius: 50%;
+    opacity: 0;
+    animation: ripple-effect 2s infinite;
+  }
+}
+
+// Container d'erreur
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  .error-icon {
+    font-size: 3rem;
+    color: #f44336;
+    margin-bottom: 1rem;
+  }
+  
+  .error-message {
+    color: #f44336;
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+  
+  .redirect-message {
+    color: #888;
+    font-size: 0.9rem;
+  }
+}
+
+// Container de succès
+.success-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  .success-icon {
+    font-size: 3rem;
+    color: #4caf50;
+    margin-bottom: 1rem;
+  }
+  
+  .success-message {
+    color: #4caf50;
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+  
+  .redirect-message {
+    color: #888;
+    font-size: 0.9rem;
+  }
+}
+
+// Fond avec vagues animées
+.wave-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  
+  .wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 200%;
+    height: 100px;
+    background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="%23e91e63"/><path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" fill="%23e91e63"/><path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="%23e91e63"/></svg>');
+    background-repeat: repeat-x;
+    background-position: 0 bottom;
+    background-size: 1200px 100px;
+    z-index: 1;
+    
+    &.wave1 {
+      opacity: 0.3;
+      bottom: 0;
+      animation: wave 30s linear infinite;
+    }
+    
+    &.wave2 {
+      opacity: 0.2;
+      bottom: 10px;
+      animation: wave 25s linear reverse infinite;
+    }
+    
+    &.wave3 {
+      opacity: 0.1;
+      bottom: 20px;
+      animation: wave 35s linear infinite;
+    }
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes drop-fall {
+  0% {
+    transform: translateX(-50%) translateY(0);
+    border-radius: 50%;
+  }
+  60% {
+    transform: translateX(-50%) translateY(40px);
+    border-radius: 50% 50% 25% 25%;
+  }
+  80% {
+    transform: translateX(-50%) translateY(40px);
+    border-radius: 50% 50% 25% 25%;
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) translateY(40px);
+    border-radius: 50% 50% 25% 25%;
+    opacity: 0;
+  }
+}
+
+@keyframes ripple-effect {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes wave {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}

@@ -1,0 +1,586 @@
+// Variables
+$primary-color: #e63946;
+$secondary-color: #1d3557;
+$accent-color: #457b9d;
+$light-color: #f1faee;
+$critical-color: #d62828;
+$low-color: #fcbf49;
+$normal-color: #2a9d8f;
+$high-color: #1b4332;
+$overlay-color: rgba(0, 0, 0, 0.5);
+$border-color: #e0e0e0;
+$bg-color: #f8f9fa;
+
+// Mixins
+@mixin blood-type-style($bg-color, $text-color) {
+  background-color: $bg-color;
+  color: $text-color;
+}
+
+@mixin card-shadow {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+// Styles globaux
+.blood-stock-container {
+  font-family: 'Roboto', sans-serif;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background-color: $bg-color;
+  min-height: 100vh;
+}
+
+// Header
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  
+  h1 {
+    color: $secondary-color;
+    margin: 0;
+    font-size: 2rem;
+    position: relative;
+    
+    &:after {
+      content: "";
+      display: block;
+      width: 50px;
+      height: 4px;
+      background-color: $primary-color;
+      margin-top: 8px;
+    }
+  }
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+// Boutons
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.25rem;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  gap: 0.5rem;
+  
+  i {
+    font-size: 1rem;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-primary {
+  background-color: $primary-color;
+  color: white;
+  
+  &:hover {
+    background-color: darken($primary-color, 10%);
+  }
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: $secondary-color;
+  border: 1px solid $secondary-color;
+  
+  &:hover {
+    background-color: $secondary-color;
+    color: white;
+  }
+}
+
+.btn-warning {
+  background-color: $low-color;
+  color: $secondary-color;
+  
+  &:hover {
+    background-color: darken($low-color, 10%);
+  }
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: $accent-color;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: darken($accent-color, 15%);
+    text-decoration: underline;
+  }
+  
+  i {
+    font-size: 0.8rem;
+  }
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $accent-color;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0 0.25rem;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &.btn-danger {
+    background-color: $critical-color;
+  }
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: $secondary-color;
+  cursor: pointer;
+}
+
+// Dashboard summary
+.dashboard-summary {
+  margin-bottom: 2rem;
+  
+  .summary-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}
+
+.blood-type-card {
+  padding: 1rem;
+  border-radius: 8px;
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  
+  .blood-type-icon {
+    font-size: 1.5rem;
+    font-weight: bold;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    margin-right: 1rem;
+  }
+  
+  .blood-type-info {
+    display: flex;
+    flex-direction: column;
+    
+    .blood-type-count {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    
+    .blood-type-unit {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+  }
+}
+
+// Styles pour les types sanguins
+.blood-type-Aplus { @include blood-type-style(#f94144, white); }
+.blood-type-Aminus { @include blood-type-style(#f3722c, white); }
+.blood-type-Bplus { @include blood-type-style(#f8961e, $secondary-color); }
+.blood-type-Bminus { @include blood-type-style(#f9c74f, $secondary-color); }
+.blood-type-ABplus { @include blood-type-style(#90be6d, white); }
+.blood-type-ABminus { @include blood-type-style(#43aa8b, white); }
+.blood-type-Oplus { @include blood-type-style(#4d908e, white); }
+.blood-type-Ominus { @include blood-type-style(#577590, white); }
+
+// Filtres
+.filters-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 200px;
+  
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: $secondary-color;
+  }
+  
+  select {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background-color: white;
+    font-size: 1rem;
+    
+    &:focus {
+      outline: none;
+      border-color: $accent-color;
+    }
+  }
+}
+
+// Sections des régions
+.region-section {
+  margin-bottom: 3rem;
+}
+
+.region-title {
+  color: $secondary-color;
+  font-size: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid $accent-color;
+  margin-bottom: 1.5rem;
+}
+
+// Grille de banques de sang
+.blood-banks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+// Cartes de banques de sang
+.blood-bank-card {
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  @include card-shadow();
+}
+
+.blood-bank-header {
+  padding: 1.25rem;
+  border-bottom: 1px solid $border-color;
+  
+  h3 {
+    margin: 0 0 0.5rem 0;
+    color: $secondary-color;
+    font-size: 1.2rem;
+  }
+  
+  .blood-bank-address {
+    color: #666;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+.blood-bank-summary {
+  padding: 1.25rem;
+  
+  .blood-types-overview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+
+.stock-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  gap: 0.5rem;
+  
+  .blood-type {
+    font-weight: bold;
+  }
+  
+  .quantity {
+    background-color: rgba(255, 255, 255, 0.3);
+    padding: 0.15rem 0.35rem;
+    border-radius: 10px;
+  }
+}
+
+.blood-bank-actions {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid $border-color;
+  display: flex;
+  justify-content: center;
+}
+
+// Détails expandables
+.blood-bank-details {
+  padding: 0 1.25rem 1.25rem;
+  animation: expand 0.3s ease;
+}
+
+@keyframes expand {
+  from { opacity: 0; max-height: 0; }
+  to { opacity: 1; max-height: 1000px; }
+}
+
+// Tableau de détails
+.stock-details-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+  
+  th, td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+  }
+  
+  th {
+    color: $secondary-color;
+    font-weight: 500;
+    background-color: rgba($light-color, 0.5);
+  }
+  
+  tr:hover {
+    background-color: rgba($light-color, 0.2);
+  }
+  
+  .actions-cell {
+    white-space: nowrap;
+    text-align: center;
+  }
+  
+  .blood-type-cell {
+    text-align: center;
+  }
+}
+
+.blood-type-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+// Styles pour les statuts
+.status-critical {
+  .status-badge, &.stock-pill {
+    background-color: rgba($critical-color, 0.1);
+    color: $critical-color;
+  }
+}
+
+.status-low {
+  .status-badge, &.stock-pill {
+    background-color: rgba($low-color, 0.1);
+    color: darken($low-color, 20%);
+  }
+}
+
+.status-normal {
+  .status-badge, &.stock-pill {
+    background-color: rgba($normal-color, 0.1);
+    color: $normal-color;
+  }
+}
+
+.status-high {
+  .status-badge, &.stock-pill {
+    background-color: rgba($high-color, 0.1);
+    color: $high-color;
+  }
+}
+
+// Message aucun résultat
+.no-results {
+  text-align: center;
+  padding: 3rem;
+  background-color: white;
+  border-radius: 8px;
+  margin-top: 2rem;
+  
+  i {
+    font-size: 3rem;
+    color: #ddd;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: #666;
+    font-size: 1.1rem;
+  }
+}
+
+// Modal
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: $overlay-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: white;
+  border-radius: 8px;
+  width: 500px;
+  max-width: 90%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 1.5rem;
+  background-color: $light-color;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  h2 {
+    margin: 0;
+    color: $secondary-color;
+  }
+}
+
+.modal-body {
+  padding: 2rem 1.5rem;
+}
+
+.modal-footer {
+  padding: 1.5rem;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: $secondary-color;
+  }
+  
+  input, select {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    
+    &:focus {
+      outline: none;
+      border-color: $accent-color;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 992px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .blood-banks-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .blood-type-card {
+    min-width: 100px;
+  }
+  
+  .blood-banks-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .filters-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .filter-group {
+    width: 100%;
+  }
+  
+  .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .stock-details-table {
+    font-size: 0.8rem;
+    
+    th, td {
+      padding: 0.5rem 0.3rem;
+    }
+  }
+}

@@ -1,0 +1,9 @@
+<!-- home-admin.component.html -->
+<div class="admin_page">
+  <div class="main-layout" [ngClass]="{'sidebar-expanded': sidebarExpanded, 'sidebar-collapsed': !sidebarExpanded}">
+    <app-sidebar (onToggleSidebar)="onSidebarToggle($event)"></app-sidebar>
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

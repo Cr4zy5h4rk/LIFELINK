@@ -1,0 +1,259 @@
+/* dashboard.component.css */
+.dashboard-container {
+  padding: 1.5rem;
+  font-family: 'Roboto', sans-serif;
+  color: #333;
+  background-color: #f6f7fb;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 50px;
+  margin-right: 1rem;
+}
+
+.header-subtitle h2 {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: #666;
+}
+
+.date-info {
+  font-size: 1rem;
+  color: #666;
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.stat-icon {
+  background-color: #e8f4ff;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  font-size: 1.5rem;
+  color: #1e88e5;
+}
+
+.stat-content h3 {
+  font-size: 1.8rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.stat-content p {
+  margin: 0;
+  color: #666;
+}
+
+.dashboard-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  flex: 1;
+}
+
+.dashboard-card h3 {
+  font-size: 1.2rem;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.chart-container {
+  height: 250px;
+  position: relative;
+}
+
+.map-container {
+  width: 100%;
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.inventory-item {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.blood-type {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.blood-level-indicator {
+  height: 100px;
+  width: 30px;
+  background-color: #e0e0e0;
+  margin: 0 auto;
+  border-radius: 15px;
+  position: relative;
+  overflow: hidden;
+}
+
+.blood-level {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: #e53935;
+  border-radius: 0 0 15px 15px;
+  transition: height 0.5s ease;
+}
+
+.blood-status {
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.inventory-item.critical .blood-level {
+  background-color: #d32f2f;
+}
+
+.inventory-item.low .blood-level {
+  background-color: #ff9800;
+}
+
+.inventory-item.normal .blood-level {
+  background-color: #4caf50;
+}
+
+.inventory-item.surplus .blood-level {
+  background-color: #2196f3;
+}
+
+.events-list, .urgent-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.event-item, .urgent-item {
+  display: flex;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.event-date {
+  background-color: #e8f4ff;
+  border-radius: 8px;
+  padding: 0.5rem;
+  text-align: center;
+  min-width: 60px;
+  margin-right: 1rem;
+}
+
+.event-date .day {
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: block;
+}
+
+.event-date .month {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.event-details h4, .urgent-details h4 {
+  margin: 0 0 0.5rem 0;
+}
+
+.event-details p, .urgent-details p {
+  margin: 0.25rem 0;
+  color: #666;
+}
+
+.blood-type-badge {
+  background-color: #ffebee;
+  color: #d32f2f;
+  border-radius: 8px;
+  padding: 0.5rem;
+  min-width: 50px;
+  text-align: center;
+  font-weight: 600;
+  margin-right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Animation pour les éléments en surbrillance */
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(229, 57, 53, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0); }
+}
+
+.urgent-item .blood-type-badge {
+  animation: pulse 1.5s infinite;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .dashboard-row {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .inventory-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
